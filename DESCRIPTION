@@ -1,0 +1,15 @@
+Imports:
+  brms,
+  cmdstanr,
+  bayesplot,
+  posterior,
+  tidybayes,
+  loo,
+  ggplot2,
+  esquisse,
+  jsonlite,
+  yaml,
+  digest,
+  testthat,
+  withr,
+  lme4
