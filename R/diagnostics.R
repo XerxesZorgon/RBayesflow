@@ -85,3 +85,41 @@ run_diagnostics <- function(fit, wf) {
   export_context(wf)
   invisible(wf)
 }
+
+# --- detect_parameterization() — DESIGN.md §6 ---
+
+detect_parameterization <- function(fit) {
+  stopifnot(inherits(fit, "brmsfit"))
+
+  # Only relevant for hierarchical models
+  re_terms <- reformulas::findbars(formula(fit))
+  if (is.null(re_terms) || length(re_terms) == 0) {
+    return(NA_character_)
+  }
+
+  # Inspect generated Stan code for parameterization indicators
+  stan_code <- tryCatch(
+    brms::stancode(fit),
+    error = function(e) ""
+  )
+
+  # Non-centered: z_ prefix variables present (e.g., z_1, z_2)
+  # Centered: r_ prefix variables present (e.g., r_Subject)
+  has_z_prefix <- grepl("\\bz_[0-9]", stan_code)
+  has_r_prefix <- grepl("\\br_[A-Za-z]", stan_code)
+
+  param <- if (has_z_prefix && !has_r_prefix) {
+    "non-centered"
+  } else if (has_r_prefix && !has_z_prefix) {
+    "centered"
+  } else if (has_z_prefix && has_r_prefix) {
+    # Mixed — report non-centered (dominant pattern)
+    "non-centered"
+  } else {
+    # Cannot determine — fall back gracefully
+    NA_character_
+  }
+
+  param
+}
+
