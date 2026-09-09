@@ -1,0 +1,74 @@
+---
+title: "RBayesflow Phase 6: Model Comparison (LOO-CV)"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 6 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews.
+# The user is running LOO-CV (leave-one-out cross-validation) for model
+# comparison. In learn mode: ask the user what the elpd_diff and se_diff
+# values tell them about the models, citing Vehtari et al. (2017).
+# In practice mode: display the LOO comparison table directly.
+-->
+
+## Setup
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+library(loo)
+wf  <- readRDS("wf_phase5.rds")
+fit <- readRDS("fit.rds")
+```
+
+## Phase 6: LOO-CV Model Comparison
+
+Compute LOO for the current model. If comparing multiple models, load
+each fitted model and run `loo_compare()`.
+
+```{r loo-single, eval=FALSE}
+# LOO for the current model
+loo_fit <- loo(fit)
+print(loo_fit)
+```
+
+```{r loo-compare, eval=FALSE}
+# Comparing two models: load a second fit and compare
+# fit2 <- readRDS("fit2.rds")
+# loo_fit2 <- loo(fit2)
+# loo_compare(loo_fit, loo_fit2)
+```
+
+::: {.callout-note}
+**Learn mode — interpreting LOO output:**
+The key column is `elpd_loo` (expected log predictive density). Higher
+(less negative) values indicate better out-of-sample predictive
+accuracy. When comparing models with `loo_compare()`, the `elpd_diff`
+column shows how much better or worse each model is relative to the
+top model; values more negative than `-2 * se_diff` indicate a
+meaningful difference. See Vehtari, Gelman & Gabry (2017),
+*Practical Bayesian model evaluation using leave-one-out
+cross-validation and WAIC*, for detailed guidance.
+
+**Posit Assistant:** Ask "My elpd_diff is -4.2 with se_diff of 3.1 —
+is this a meaningful difference between the models?" for a Socratic
+interpretation.
+:::
+
+## Update workflow state
+
+```{r update-wf, eval=FALSE}
+wf$loo_complete <- TRUE
+wf$loo_table    <- as.data.frame(loo_fit$estimates)
+export_context(wf)
+saveRDS(wf, "wf_phase6.rds")
+cat("Phase 6 complete. wf saved to wf_phase6.rds\n")
+cat("Proceed to templates/bayesflow_report.qmd to render your report.\n")
+```
