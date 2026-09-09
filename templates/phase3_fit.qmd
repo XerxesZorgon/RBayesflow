@@ -1,0 +1,78 @@
+---
+title: "RBayesflow Phase 3: Model Fitting"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 3 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews. The user is fitting a model via brms
+# with cmdstanr backend. Do not display coefficient summaries until
+# Phase 4 diagnostics confirm wf_state$diagnostics$passed == TRUE.
+-->
+
+## Setup
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+wf <- readRDS("wf_phase2.rds")   # Load wf from Phase 2
+```
+
+## Model specification
+
+Review the formula and family carried forward from Phase 2.
+
+```{r model-spec}
+library(lme4)
+library(brms)
+data <- sleepstudy
+
+# These should match Phase 2 — edit only if your model has changed.
+formula <- Reaction ~ Days + (Days | Subject)
+family  <- gaussian()
+priors  <- wf$priors_objects[[1]]   # Priors stored in Phase 2
+```
+
+## Phase 3: Model Fitting
+
+Run this chunk to fit the model. This may take 5–15 minutes.
+
+```{r phase3, eval=FALSE}
+result <- run_phase3(
+  wf      = wf,
+  formula = formula,
+  data    = data,
+  family  = family,
+  priors  = priors,
+  seed    = 42,
+  chains  = 4,
+  iter    = 2000,
+  warmup  = 1000,
+  refresh = 100
+)
+wf  <- result$wf
+fit <- result$fit
+```
+
+::: {.callout-note}
+**Parameterization note:** After fitting, `wf$parameterization`
+records whether brms used a centered or non-centered parameterization
+for any random effects. If you see divergent transitions in Phase 4,
+call `refit_noncentered(wf, fit)` to switch automatically.
+:::
+
+## Save workflow state and fit
+
+```{r save-wf, eval=FALSE}
+saveRDS(fit, "fit.rds")
+saveRDS(wf,  "wf_phase3.rds")
+cat("Phase 3 complete.\n")
+cat("fit saved to fit.rds | wf saved to wf_phase3.rds\n")
+cat("Proceed to templates/phase4_diagnostics.qmd\n")
+```
