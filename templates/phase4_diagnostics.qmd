@@ -1,0 +1,81 @@
+---
+title: "RBayesflow Phase 4: MCMC Diagnostics"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 4 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews.
+# CRITICAL: Do not display coefficient summaries unless
+# wf_state$diagnostics$passed == TRUE AND
+# wf_state$diagnostics$acknowledged == TRUE.
+# If diagnostics failed, suggest diagnostic investigation only.
+-->
+
+## Setup
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+wf  <- readRDS("wf_phase3.rds")
+fit <- readRDS("fit.rds")
+```
+
+## Phase 4: MCMC Diagnostics
+
+Run diagnostics on your fitted model.
+
+```{r run-diagnostics, eval=FALSE}
+wf <- run_diagnostics(fit, wf)
+print(wf)
+```
+
+## Diagnostic Review
+
+::: {.callout-warning}
+**Interactive step required — run in Console, not by rendering.**
+
+If `print(wf)` above showed a DIAGNOSTIC FAILURE message, run
+the chunk below in your RStudio Console (not here):
+
+```r
+wf <- wf$diagnose()
+```
+
+This will display diagnostic plots and ask you to acknowledge the
+failure. Only after acknowledgment will coefficient output be shown.
+The `wf$diagnose()` function uses `readline()` which requires an
+interactive session — it cannot run inside a rendered document.
+:::
+
+```{r diagnose-console, eval=FALSE}
+# Run this in your RStudio Console if diagnostics failed:
+# wf <- wf$diagnose()
+# Then return here and run print(wf) again.
+```
+
+## Parameterization Check
+
+```{r param-check, eval=FALSE}
+cat("Parameterization:", wf$parameterization, "\n")
+if (!is.na(wf$parameterization) &&
+    wf$parameterization == "centered" &&
+    wf$diagnostics$n_divergences > 0) {
+  cat("Tip: Divergences detected with centered parameterization.\n")
+  cat("Consider: result_nc <- refit_noncentered(wf, fit)\n")
+}
+```
+
+## Save workflow state
+
+```{r save-wf, eval=FALSE}
+saveRDS(wf, "wf_phase4.rds")
+cat("Phase 4 complete. wf saved to wf_phase4.rds\n")
+cat("Proceed to templates/phase5_ppc.qmd\n")
+```
