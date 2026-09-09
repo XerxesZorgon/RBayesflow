@@ -151,3 +151,72 @@ DIAGNOSTIC_REGISTRY[["negbinomial"]] <- function(fit, wf) {
   )
 }
 
+# --- Gaussian hierarchical entry (DESIGN.md §8.3) ---
+
+DIAGNOSTIC_REGISTRY[["gaussian_hierarchical"]] <- function(fit, wf) {
+  # Identify the grouping variable from the first random-effects term
+  re_terms   <- lme4::findbars(formula(fit))
+  group_var  <- if (length(re_terms) > 0) {
+    as.character(re_terms[[1]][[3]])
+  } else {
+    NULL
+  }
+
+  n_groups <- if (!is.null(group_var) && group_var %in% names(fit$data)) {
+    length(unique(fit$data[[group_var]]))
+  } else {
+    NA_integer_
+  }
+
+  warn <- character()
+  if (!is.na(n_groups) && n_groups < 5) {
+    warn <- c(warn, sprintf(
+      "Few groups detected (n_groups = %d < 5). Centered parameterization may cause divergences. Consider calling refit_noncentered(wf).",
+      n_groups
+    ))
+  }
+
+  list(
+    checks   = list(n_groups = n_groups, group_var = group_var),
+    warnings = warn,
+    plots    = list()
+  )
+}
+
+# --- Time-series entry (DESIGN.md §8.4) ---
+
+DIAGNOSTIC_REGISTRY[["time_series"]] <- function(fit, wf) {
+  # Check ACF of residuals at lag 1
+  res  <- tryCatch(residuals(fit)[, "Estimate"], error = function(e) NULL)
+  acf1 <- if (!is.null(res) && length(res) > 5) {
+    as.numeric(acf(res, plot = FALSE)$acf[2])
+  } else {
+    NA_real_
+  }
+
+  warn <- character()
+  if (!is.na(acf1) && abs(acf1) > 0.3) {
+    warn <- c(warn, sprintf(
+      "Significant autocorrelation at lag 1 (ACF = %.3f, |ACF| > 0.3). Consider adding an AR(1) error structure in brms: autocor = ~ar(p = 1).",
+      acf1
+    ))
+  }
+
+  list(
+    checks   = list(acf_lag1 = acf1),
+    warnings = warn,
+    plots    = list()
+  )
+}
+
+# --- Unknown family fallback entry ---
+
+DIAGNOSTIC_REGISTRY[["unknown"]] <- function(fit, wf) {
+  list(
+    checks   = list(),
+    warnings = character(),
+    plots    = list()
+  )
+}
+
+
