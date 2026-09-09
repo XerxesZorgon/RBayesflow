@@ -7,38 +7,41 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [Unreleased]
+## [0.1.0] — 2026-09-08
 
 ### Added
-- Project planning documents: SDD.md, DESIGN.md, PLAN.md, TEST_PLAN.md
-- Architecture Decision Records: ADR-001 through ADR-007
-- README.md with Getting Started section
+- Seven-phase Bayesian workflow (goal declaration → prior specification
+  → fitting → diagnostics → posterior predictive checks → model
+  comparison → reporting) implemented as interactive Quarto templates
+- Three user modes: `learn`, `practice`, `expert`
+- `stage` dimension per fit: `explore`, `confirm`, `exit`
+- Evidence gate: coefficient output withheld until diagnostic failures
+  are acknowledged via `wf$diagnose()`
+- Non-Bayesian off-ramps at Phase 1 with equal visual weight;
+  machine-generated YAML exit log
+- Diagnostic registry with family-specific checks: Bernoulli (rare
+  event), Poisson/NegBinomial (overdispersion), Gaussian hierarchical
+  (few groups / parameterization), time-series (ACF lag-1)
+- Parameterization detection and `refit_noncentered()` helper
+- Posit Assistant integration via `wf_context.json`
+- `bayesflow_report.qmd` — the only rendered template; reads from
+  saved `wf_state` and `brmsfit` objects
+- Full audit trail logged to `wf_state` and exported to JSON
+- 11 Architecture Decision Records (ADR-001 through ADR-011)
 
-### Open Design Questions (must be resolved before v0.1.0)
-- ODQ-1: `diagnose()` acknowledgment mechanism — `readline()` vs. Quarto checkbox
-- ODQ-2: `wf_state` storage — attribute of `brmsfit` vs. separate object
-- ODQ-3: Minimum draws for `assess_offramps()` event rate estimation
-- ODQ-4: `mode = "expert"` — stub in v1.0 or reserved only
+### Verified
+- SC-1: Learn mode full loop — SCENARIO-1 all 10 assertions passed
+- SC-2: Diagnostic gate — SCENARIO-2 all 7 assertions passed (learn +
+  practice modes)
+- SC-3: Exit log — SCENARIO-3 all 7 assertions passed
+- SCENARIO-4: Off-ramp equal weighting — 4 assertions passed
+- SCENARIO-5: Parameterization transparency — 3 assertions passed
+- Unit tests: 8 tests, 22 expectations, 0 failures
 
----
+### Dependencies
+- R ≥ 4.3, brms ≥ 2.21, CmdStan ≥ 2.33 (2.39.0 tested)
+- Note: CmdStan 2.39.0 requires `array[N] real` syntax in raw Stan
+  code (old `real y[N]` syntax rejected)
+- Note: `formula(brmsfit)` returns `brmsformula`, not base `formula`;
+  wrap with `as.formula()` before using `[[2]]` or `findbars()`
 
-## [0.1.0] — *Target: ~13 weeks from project start*
-
-### Planned for this release
-- `R/wf_state.R`: `new_wf_state()`, `print.wf_state()`, `summary.wf_state()`, `diagnose.wf_state()`
-- `R/diagnostic_registry.R`: extensible family-specific diagnostic registry with four built-in entries (bernoulli, poisson/negbinomial, gaussian-hierarchical, time-series)
-- `R/diagnostics.R`: `run_diagnostics()` — generic Rhat/ESS/divergences/BFMI/treedepth checks + registry dispatch
-- `R/offramps.R`: `assess_offramps()` — equal-weight off-ramp assessment at Phase 1
-- `R/exit_workflow.R`: `exit_workflow()` — YAML exit log generation
-- `R/context.R`: `export_context()` — `wf_state` → `wf_context.json` for Posit Assistant
-- `R/init.R`: `init_workflow(mode, stage)`
-- All six phase Quarto templates (`phase1_exploration.qmd` through `phase6_loo.qmd`)
-- Final report template (`bayesflow_report.qmd`)
-- Examples: `glmm_gaussian/` (known-good model), `bernoulli_rare_event/` (known-bad model)
-- `renv.lock` with pinned dependencies
-- All three success criteria verified: SC-1, SC-2, SC-3
-
-### Not in this release
-- `mode = "expert"` (architecturally reserved; not implemented)
-- Custom Stan programs
-- CRAN submission
