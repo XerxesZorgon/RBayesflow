@@ -1,0 +1,77 @@
+---
+title: "RBayesflow Phase 5: Posterior Predictive Checks"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 5 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews.
+# The user is running posterior predictive checks to assess how well
+# the model reproduces the observed data distribution.
+# In learn mode: generate a Socratic question about what the user
+# notices in the PPC plot, then cite Gelman et al. (2020) Chapter 6.
+-->
+
+## Setup
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+wf  <- readRDS("wf_phase4.rds")
+fit <- readRDS("fit.rds")
+```
+
+## Phase 5: Posterior Predictive Checks
+
+```{r ppc, eval=FALSE}
+# Standard PPC: density overlay
+pp_check(fit)
+
+# Additional checks — run interactively as needed:
+# pp_check(fit, type = "stat", stat = "mean")
+# pp_check(fit, type = "stat_2d", stat = c("mean", "sd"))
+# pp_check(fit, type = "scatter_avg")
+```
+
+::: {.callout-note}
+**Learn mode — what to look for:**
+The dark line shows the distribution of your observed data. The light
+blue lines show simulated datasets from your posterior. If the dark
+line lies within the cloud of light lines, your model is capturing
+the data distribution well. Systematic deviations (e.g., the dark
+line peaking higher or lower than the cloud) indicate model
+misspecification. See Gelman et al. (2020) Section 6 for guidance
+on interpreting PPC plots.
+
+**Posit Assistant:** Ask "What does it mean if my PPC density plot
+shows the observed data consistently higher than the posterior
+predictive draws?" for a Socratic explanation.
+:::
+
+## Family-specific PPC checks
+
+```{r family-ppc, eval=FALSE}
+# The diagnostic registry recorded family-specific warnings in Phase 4.
+# Review them here:
+if (length(wf$diagnostics$family_checks$warnings) > 0) {
+  cat("Family-specific warnings from Phase 4:\n")
+  for (w in wf$diagnostics$family_checks$warnings)
+    cat(" *", w, "\n")
+}
+```
+
+## Update workflow state
+
+```{r update-wf, eval=FALSE}
+wf$ppc_complete <- TRUE
+export_context(wf)
+saveRDS(wf, "wf_phase5.rds")
+cat("Phase 5 complete. wf saved to wf_phase5.rds\n")
+cat("Proceed to templates/phase6_loo.qmd\n")
+```
