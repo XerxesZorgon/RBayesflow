@@ -79,3 +79,75 @@ DIAGNOSTIC_REGISTRY[["bernoulli"]] <- function(fit, wf) {
     )
   )
 }
+
+# --- Poisson family entry (DESIGN.md §8.2) ---
+
+DIAGNOSTIC_REGISTRY[["poisson"]] <- function(fit, wf) {
+  outcome_var <- as.character(formula(fit)[[2]])
+  y           <- fit$data[[outcome_var]]
+  pp          <- brms::posterior_predict(fit, ndraws = 100)
+
+  # Variance-to-mean ratio from posterior predictive draws
+  pp_means <- apply(pp, 1, mean)
+  pp_vars  <- apply(pp, 1, var)
+  ratio    <- mean(pp_vars / (pp_means + 1e-8))
+
+  warn <- character()
+  if (!is.na(ratio) && ratio > 2)
+    warn <- c(warn, sprintf(
+      "Overdispersion detected: posterior predictive variance-to-mean ratio = %.2f (> 2). Consider negative binomial family.",
+      ratio
+    ))
+  if (!is.na(ratio) && ratio < 0.5)
+    warn <- c(warn, sprintf(
+      "Underdispersion detected: posterior predictive variance-to-mean ratio = %.2f (< 0.5). Check model specification.",
+      ratio
+    ))
+
+  list(
+    checks   = list(variance_to_mean_ratio = ratio),
+    warnings = warn,
+    plots    = list(
+      ppc_mean = tryCatch(
+        bayesplot::ppc_stat(y, pp, stat = "mean"),
+        error = function(e) NULL
+      )
+    )
+  )
+}
+
+# --- NegBinomial family entry (DESIGN.md §8.2) ---
+
+DIAGNOSTIC_REGISTRY[["negbinomial"]] <- function(fit, wf) {
+  outcome_var <- as.character(formula(fit)[[2]])
+  y           <- fit$data[[outcome_var]]
+  pp          <- brms::posterior_predict(fit, ndraws = 100)
+
+  pp_means <- apply(pp, 1, mean)
+  pp_vars  <- apply(pp, 1, var)
+  ratio    <- mean(pp_vars / (pp_means + 1e-8))
+
+  warn <- character()
+  if (!is.na(ratio) && ratio > 2)
+    warn <- c(warn, sprintf(
+      "Overdispersion detected in NegBinomial fit: variance-to-mean ratio = %.2f (> 2). Check model specification.",
+      ratio
+    ))
+  if (!is.na(ratio) && ratio < 0.5)
+    warn <- c(warn, sprintf(
+      "Underdispersion in NegBinomial fit: variance-to-mean ratio = %.2f. Consider Poisson or verifying the dispersion parameter.",
+      ratio
+    ))
+
+  list(
+    checks   = list(variance_to_mean_ratio = ratio),
+    warnings = warn,
+    plots    = list(
+      ppc_mean = tryCatch(
+        bayesplot::ppc_stat(y, pp, stat = "mean"),
+        error = function(e) NULL
+      )
+    )
+  )
+}
+
