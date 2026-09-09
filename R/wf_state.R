@@ -183,3 +183,65 @@ format.wf_state <- function(x, ...) {
     " | audit_entries=", length(wf$audit_trail)
   )
 }
+
+# --- record_fit() and check_fit_hash() — ADR-009 hash linkage ---
+
+record_fit <- function(wf, fit) {
+  stopifnot(inherits(wf, "wf_state"))
+  stopifnot(inherits(fit, "brmsfit"))
+
+  ts <- Sys.time()
+
+  # Compute SHA-256 hash linking this wf to this specific fit
+  wf$fit_hash <- digest::digest(
+    list(
+      formula   = as.character(formula(fit)),
+      data_hash = digest::digest(fit$data, algo = "sha256"),
+      timestamp = ts
+    ),
+    algo = "sha256"
+  )
+  wf$fit_timestamp <- ts
+  wf$stan_backend  <- "cmdstanr"
+
+  # Append to audit trail
+  wf$audit_trail <- append(wf$audit_trail, list(list(
+    phase     = 3,
+    action    = "fit_recorded",
+    timestamp = wf$fit_timestamp,
+    fit_hash  = wf$fit_hash
+  )))
+
+  export_context(wf)
+  invisible(wf)
+}
+
+check_fit_hash <- function(wf, fit) {
+  stopifnot(inherits(wf, "wf_state"))
+  stopifnot(inherits(fit, "brmsfit"))
+
+  if (is.null(wf$fit_hash)) {
+    stop("wf has no recorded fit. Call record_fit(wf, fit) first.")
+  }
+
+  current_hash <- digest::digest(
+    list(
+      formula   = as.character(formula(fit)),
+      data_hash = digest::digest(fit$data, algo = "sha256"),
+      timestamp = wf$fit_timestamp
+    ),
+    algo = "sha256"
+  )
+
+  if (!identical(current_hash, wf$fit_hash)) {
+    stop(
+      "Fit hash mismatch: the supplied fit object does not match the ",
+      "model recorded in this wf_state.\n",
+      "Did you pass the wrong fit object, or re-run brm() without ",
+      "calling record_fit() again?"
+    )
+  }
+
+  invisible(TRUE)
+}
+
