@@ -92,7 +92,7 @@ detect_parameterization <- function(fit) {
   stopifnot(inherits(fit, "brmsfit"))
 
   # Only relevant for hierarchical models
-  re_terms <- reformulas::findbars(formula(fit))
+  re_terms <- reformulas::findbars(as.formula(formula(fit)))
   if (is.null(re_terms) || length(re_terms) == 0) {
     return(NA_character_)
   }
