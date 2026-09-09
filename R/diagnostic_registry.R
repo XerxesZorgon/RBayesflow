@@ -47,7 +47,7 @@ family_key <- function(fit) {
 
 DIAGNOSTIC_REGISTRY[["bernoulli"]] <- function(fit, wf) {
   # Extract outcome variable name from formula LHS
-  outcome_var <- as.character(formula(fit)[[2]])
+  outcome_var <- as.character(as.formula(formula(fit))[[2]])
   y           <- fit$data[[outcome_var]]
 
   # Sample 100 rows from posterior predictive draws
@@ -83,7 +83,7 @@ DIAGNOSTIC_REGISTRY[["bernoulli"]] <- function(fit, wf) {
 # --- Poisson family entry (DESIGN.md §8.2) ---
 
 DIAGNOSTIC_REGISTRY[["poisson"]] <- function(fit, wf) {
-  outcome_var <- as.character(formula(fit)[[2]])
+  outcome_var <- as.character(as.formula(formula(fit))[[2]])
   y           <- fit$data[[outcome_var]]
   pp          <- brms::posterior_predict(fit, ndraws = 100)
 
@@ -119,7 +119,7 @@ DIAGNOSTIC_REGISTRY[["poisson"]] <- function(fit, wf) {
 # --- NegBinomial family entry (DESIGN.md §8.2) ---
 
 DIAGNOSTIC_REGISTRY[["negbinomial"]] <- function(fit, wf) {
-  outcome_var <- as.character(formula(fit)[[2]])
+  outcome_var <- as.character(as.formula(formula(fit))[[2]])
   y           <- fit$data[[outcome_var]]
   pp          <- brms::posterior_predict(fit, ndraws = 100)
 
