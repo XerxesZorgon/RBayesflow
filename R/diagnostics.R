@@ -123,3 +123,65 @@ detect_parameterization <- function(fit) {
   param
 }
 
+# --- refit_noncentered() — DESIGN.md §6 ---
+# Switches a centered-parameterization hierarchical model to non-centered
+# by rebuilding the brms formula with (0 + Intercept | group) syntax.
+# v1.0: handles simple (1 | group) terms only.
+# Complex random-effects structures require manual formula revision.
+
+refit_noncentered <- function(wf, fit) {
+  stopifnot(inherits(wf,  "wf_state"))
+  stopifnot(inherits(fit, "brmsfit"))
+
+  if (!identical(wf$parameterization, "centered")) {
+    stop(
+      "refit_noncentered() requires wf$parameterization == 'centered'.\n",
+      "Current parameterization: ", wf$parameterization
+    )
+  }
+
+  # Rebuild formula: replace (1 | group) with (0 + Intercept | group)
+  original_formula <- deparse(formula(fit))
+  nc_formula_str   <- gsub(
+    pattern     = "\\(1\\s*\\|\\s*([^)]+)\\)",
+    replacement = "(0 + Intercept | \\1)",
+    x           = original_formula
+  )
+
+  if (identical(nc_formula_str, original_formula)) {
+    warning(
+      "No simple (1 | group) terms found in formula. ",
+      "The formula was not modified. ",
+      "For complex random-effects structures, revise the formula manually."
+    )
+  }
+
+  nc_formula <- as.formula(nc_formula_str)
+
+  # Refit with non-centered parameterization
+  message("Refitting with non-centered parameterization: ", nc_formula_str)
+  fit_nc <- brms::brm(
+    formula  = nc_formula,
+    data     = fit$data,
+    family   = brms::family(fit),
+    prior    = brms::prior_summary(fit),
+    backend  = "cmdstanr",
+    seed     = 42,
+    refresh  = 100
+  )
+
+  # Update wf with new fit
+  wf_nc                  <- wf
+  wf_nc$parameterization <- "non-centered"
+  wf_nc                  <- record_fit(wf_nc, fit_nc)
+  wf_nc$audit_trail      <- append(wf_nc$audit_trail, list(list(
+    phase     = 4,
+    action    = "refit_noncentered",
+    timestamp = Sys.time(),
+    formula   = nc_formula_str
+  )))
+
+  list(fit_new = fit_nc, wf_new = wf_nc)
+}
+
+
