@@ -69,6 +69,73 @@ new_wf_state <- function(mode = "learn", stage = "explore") {
   )
 }
 
-# Stubs — fully implemented in later tasks
-print.wf_state   <- function(wf, ...) cat("[wf_state stub] mode:", wf$mode, "| stage:", wf$stage, "\n")
+# --- Display helper stubs (fully implemented in R/display.R, Task 035) ---
+
+cat_wf_header <- function(wf) {
+  cat("=== RBayesflow workflow state ===\n")
+  cat("Mode:", wf$mode, "| Stage:", wf$stage, "\n")
+  if (!is.null(wf$formula))
+    cat("Formula:", deparse(wf$formula), "\n")
+  cat("Diagnostics: not yet run\n")
+}
+
+cat_health_summary_one_line <- function(wf) {
+  cat("Diagnostics: PASSED (Rhat_max =", wf$diagnostics$rhat_max,
+      "| ESS_bulk_min =", wf$diagnostics$bulk_ess_min,
+      "| divergences =", wf$diagnostics$n_divergences, ")\n")
+}
+
+cat_coefficient_table <- function(wf) {
+  cat("[Coefficient table: source fit object with fixef() or brms::fixef()]\n")
+}
+
+cat_diagnostic_failure_message <- function(wf) {
+  cat("!!! DIAGNOSTIC FAILURE !!!\n")
+  cat("Failed criteria:", paste(wf$diagnostics$failed_criteria, collapse = ", "), "\n")
+}
+
+plot_prior_posterior_overlay <- function(wf) {
+  cat("[Prior-vs-posterior overlay: implemented in R/display.R]\n")
+  invisible(NULL)
+}
+
+# --- Full display contract (DESIGN.md §3) ---
+
+print.wf_state <- function(wf, ...) {
+  stopifnot(inherits(wf, "wf_state"))
+
+  if (is.na(wf$diagnostics$passed)) {
+    # Fit not yet run
+    cat_wf_header(wf)
+
+  } else if (isTRUE(wf$diagnostics$passed)) {
+    # Clean diagnostics
+    if (wf$mode == "learn") {
+      plot_prior_posterior_overlay(wf)
+      cat_health_summary_one_line(wf)
+    } else {
+      cat_coefficient_table(wf)
+      cat_health_summary_one_line(wf)
+    }
+
+  } else {
+    # Failed diagnostics
+    if (!isTRUE(wf$diagnostics$acknowledged)) {
+      cat_diagnostic_failure_message(wf)
+      cat("-> Call wf$diagnose() to review the failing checks.\n")
+    } else {
+      if (wf$mode == "learn") {
+        cat_diagnostic_failure_message(wf)
+        cat("(Diagnostics reviewed and acknowledged.)\n")
+      } else {
+        cat_coefficient_table(wf)
+        cat("WARNING: Diagnostics failed (acknowledged). Coefficients shown with caveat.\n")
+      }
+    }
+  }
+
+  invisible(wf)
+}
+
+# diagnose stub — fully implemented in Task 026
 diagnose.wf_state <- function(wf, ...) invisible(wf)
