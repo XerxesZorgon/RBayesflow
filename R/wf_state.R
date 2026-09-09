@@ -139,3 +139,47 @@ print.wf_state <- function(wf, ...) {
 
 # diagnose stub — fully implemented in Task 026
 diagnose.wf_state <- function(wf, ...) invisible(wf)
+
+# --- summary and format methods ---
+
+summary.wf_state <- function(object, ...) {
+  wf <- object
+  cat("=== RBayesflow Workflow Summary ===\n")
+  cat("Mode: ", wf$mode, "\n", sep = "")
+  cat("Stage:", wf$stage, "\n")
+  cat("Version:", wf$rbayesflow_version, "\n")
+  cat("Fit timestamp:",
+      if (!is.null(wf$fit_timestamp)) format(wf$fit_timestamp) else "not yet fitted",
+      "\n")
+  diag_status <- if (is.na(wf$diagnostics$passed)) {
+    "not yet run"
+  } else if (isTRUE(wf$diagnostics$passed)) {
+    "PASSED"
+  } else {
+    paste0("FAILED (", paste(wf$diagnostics$failed_criteria, collapse = ", "), ")")
+  }
+  cat("Diagnostics:", diag_status, "\n")
+  cat("Acknowledged:", wf$diagnostics$acknowledged, "\n")
+  cat("Audit trail entries:", length(wf$audit_trail), "\n")
+  cat("PPC complete:", wf$ppc_complete, "\n")
+  cat("LOO complete:", wf$loo_complete, "\n")
+  invisible(wf)
+}
+
+format.wf_state <- function(x, ...) {
+  wf <- x
+  diag_status <- if (is.na(wf$diagnostics$passed)) {
+    "diagnostics_not_run"
+  } else if (isTRUE(wf$diagnostics$passed)) {
+    "diagnostics_passed"
+  } else {
+    "diagnostics_failed"
+  }
+  paste0(
+    "RBayesflow v", wf$rbayesflow_version,
+    " | mode=", wf$mode,
+    " | stage=", wf$stage,
+    " | ", diag_status,
+    " | audit_entries=", length(wf$audit_trail)
+  )
+}
