@@ -3,6 +3,7 @@
 
 root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 source(file.path(root, "R", "wf_state.R"))
+source(file.path(root, "R", "offramps.R"))
 
 # mock_brmsfit(): minimal brmsfit stub with a fixef() method.
 mock_brmsfit <- function() {
