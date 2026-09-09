@@ -1,0 +1,148 @@
+---
+title: "RBayesflow Bayesian Workflow Report"
+format: html
+params:
+  mode:     "learn"
+  stage:    "explore"
+  wf_path:  "wf.rds"
+  fit_path: "fit.rds"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 7 (Report) of the RBayesflow Bayesian workflow.
+# This document is READ-ONLY from the workflow objects.
+# All content is sourced from wf_state and the saved brmsfit.
+# Do NOT suggest re-running any fitting code. Claims are traceable
+# to wf_state fields loaded from params$wf_path.
+-->
+
+```{r setup, message=FALSE, warning=FALSE}
+source("R/source_all.R")
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+wf  <- readRDS(params$wf_path)
+fit <- readRDS(params$fit_path)
+```
+
+## Workflow Summary
+
+```{r wf-summary}
+summary(wf)
+```
+
+**Mode:** `r wf$mode` | **Stage:** `r wf$stage` |
+**RBayesflow version:** `r wf$rbayesflow_version`
+
+## Model Specification
+
+```{r model-spec}
+if (!is.null(wf$formula))
+  cat("Formula:", deparse(wf$formula), "\n")
+if (!is.null(wf$priors_text))
+  cat("Priors:\n", wf$priors_text, "\n")
+cat("Parameterization:", wf$parameterization %||% "non-hierarchical", "\n")
+```
+
+## MCMC Diagnostics
+
+```{r diagnostics}
+diag_status <- if (isTRUE(wf$diagnostics$passed)) {
+  "**PASSED**"
+} else if (isTRUE(wf$diagnostics$acknowledged)) {
+  "**FAILED (acknowledged)**"
+} else {
+  "**FAILED (not reviewed)**"
+}
+```
+
+Diagnostic status: `r diag_status`
+
+```{r diag-table}
+if (!is.na(wf$diagnostics$rhat_max)) {
+  diag_df <- data.frame(
+    Criterion  = c("Rhat_max", "ESS_bulk_min", "ESS_tail_min",
+                   "Divergences", "BFMI_min"),
+    Value      = c(
+      round(wf$diagnostics$rhat_max, 4),
+      round(wf$diagnostics$bulk_ess_min),
+      round(wf$diagnostics$tail_ess_min),
+      wf$diagnostics$n_divergences,
+      round(min(wf$diagnostics$bfmi, na.rm = TRUE), 3)
+    ),
+    Threshold  = c("< 1.01", "> 400", "> 400", "= 0", "> 0.3"),
+    Pass       = c(
+      isTRUE(wf$diagnostics$rhat_max < 1.01),
+      isTRUE(wf$diagnostics$bulk_ess_min > 400),
+      isTRUE(wf$diagnostics$tail_ess_min > 400),
+      isTRUE(wf$diagnostics$n_divergences == 0),
+      isTRUE(all(wf$diagnostics$bfmi > 0.3, na.rm = TRUE))
+    )
+  )
+  knitr::kable(diag_df, caption = "MCMC Diagnostic Summary")
+}
+```
+
+## Coefficient Summary
+
+```{r coefficients}
+if (isTRUE(wf$diagnostics$passed) ||
+    isTRUE(wf$diagnostics$acknowledged)) {
+  print(summary(fit))
+} else {
+  cat("Coefficient summary withheld: diagnostics failed and not acknowledged.\n")
+  cat("Call wf$diagnose() interactively to review and acknowledge failures.\n")
+}
+```
+
+## Posterior Predictive Checks
+
+```{r ppc}
+if (isTRUE(wf$ppc_complete)) {
+  pp_check(fit)
+} else {
+  cat("PPC not yet run. Complete Phase 5 before generating this report.\n")
+}
+```
+
+## Model Comparison (LOO-CV)
+
+```{r loo}
+if (isTRUE(wf$loo_complete) && !is.null(wf$loo_table)) {
+  knitr::kable(wf$loo_table,
+               caption = "LOO-CV Estimates",
+               digits = 2)
+} else {
+  cat("LOO not yet run. Complete Phase 6 before generating this report.\n")
+}
+```
+
+## Audit Trail
+
+```{r audit-trail}
+#| code-fold: true
+#| code-summary: "Show full audit trail"
+if (length(wf$audit_trail) > 0) {
+  for (i in seq_along(wf$audit_trail)) {
+    entry <- wf$audit_trail[[i]]
+    cat(sprintf("[%d] Phase %s | %s | %s\n",
+                i,
+                entry$phase %||% "?",
+                entry$action %||% "?",
+                format(entry$timestamp %||% Sys.time())))
+  }
+} else {
+  cat("No audit trail entries.\n")
+}
+```
+
+## Exit Log
+
+```{r exit-log}
+if (identical(wf$stage, "exit") && !is.null(wf$exit_log)) {
+  log <- wf$exit_log
+  cat("Method chosen:", log$method, "\n")
+  cat("Justification:", log$justification, "\n")
+  cat("User confirmed:", log$user_confirmed, "\n")
+  cat("Timestamp:", log$timestamp, "\n")
+}
+```
