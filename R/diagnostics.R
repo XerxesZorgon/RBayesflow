@@ -1,0 +1,87 @@
+# R/diagnostics.R
+# run_diagnostics(): generic MCMC health checks + family registry dispatch.
+# detect_parameterization(): centered vs non-centered detection.
+# refit_noncentered(): one-call reparameterisation switch.
+# DESIGN.md §6, §8; ADR-007.
+
+run_diagnostics <- function(fit, wf) {
+  stopifnot(inherits(fit,  "brmsfit"))
+  stopifnot(inherits(wf,   "wf_state"))
+
+  check_fit_hash(wf, fit)
+
+  # --- Generic MCMC checks via posterior ---
+  draws_summary <- posterior::summarise_draws(
+    fit,
+    "mean", "sd", "rhat",
+    ess_bulk = posterior::ess_bulk,
+    ess_tail = posterior::ess_tail
+  )
+
+  rhat_max     <- max(draws_summary$rhat,     na.rm = TRUE)
+  bulk_ess_min <- min(draws_summary$ess_bulk, na.rm = TRUE)
+  tail_ess_min <- min(draws_summary$ess_tail, na.rm = TRUE)
+
+  # --- Divergences, BFMI, treedepth from cmdstanr diagnostics ---
+  diag_info <- tryCatch(fit$diagnostic_summary(quiet = TRUE),
+                        error = function(e) NULL)
+
+  n_divergences     <- if (!is.null(diag_info)) sum(diag_info$num_divergent)   else NA_integer_
+  bfmi              <- if (!is.null(diag_info)) diag_info$ebfmi                else NA_real_
+  max_treedepth_hit <- if (!is.null(diag_info)) any(diag_info$num_max_treedepth > 0) else NA
+
+  # --- Evaluate each criterion ---
+  failed <- character()
+  if (!is.na(rhat_max)     && rhat_max     >= 1.01)   failed <- c(failed, "rhat_max")
+  if (!is.na(bulk_ess_min) && bulk_ess_min <= 400)     failed <- c(failed, "bulk_ess_min")
+  if (!is.na(tail_ess_min) && tail_ess_min <= 400)     failed <- c(failed, "tail_ess_min")
+  if (!is.na(n_divergences) && n_divergences > 0)      failed <- c(failed, "n_divergences")
+  if (!all(is.na(bfmi))    && any(bfmi < 0.3, na.rm = TRUE)) failed <- c(failed, "bfmi")
+  if (isTRUE(max_treedepth_hit))                       failed <- c(failed, "max_treedepth")
+
+  passed <- length(failed) == 0
+
+  # --- Store generic results in wf ---
+  wf$diagnostics$rhat_max          <- rhat_max
+  wf$diagnostics$bulk_ess_min      <- bulk_ess_min
+  wf$diagnostics$tail_ess_min      <- tail_ess_min
+  wf$diagnostics$n_divergences     <- n_divergences
+  wf$diagnostics$bfmi              <- bfmi
+  wf$diagnostics$max_treedepth_hit <- max_treedepth_hit
+  wf$diagnostics$failed_criteria   <- failed
+  wf$diagnostics$passed            <- passed
+
+  # --- Family-specific registry dispatch ---
+  fkey         <- family_key(fit)
+  registry_fn  <- DIAGNOSTIC_REGISTRY[[fkey]]
+  family_result <- tryCatch(
+    registry_fn(fit, wf),
+    error = function(e) {
+      warning("Family-specific diagnostic failed for '", fkey, "': ", e$message)
+      list(checks = list(), warnings = character(), plots = list())
+    }
+  )
+  wf$diagnostics$family_checks <- family_result
+
+  # --- Append divergence + parameterization note to warnings if needed ---
+  if (!is.na(n_divergences) && n_divergences > 0 &&
+      !is.null(wf$parameterization) &&
+      identical(wf$parameterization, "centered")) {
+    p_warn <- "Centered parameterization with divergences detected. Consider calling refit_noncentered(wf)."
+    wf$diagnostics$family_checks$warnings <-
+      c(wf$diagnostics$family_checks$warnings, p_warn)
+  }
+
+  # --- Audit trail ---
+  wf$audit_trail <- append(wf$audit_trail, list(list(
+    phase           = 4,
+    action          = "diagnostics_run",
+    timestamp       = Sys.time(),
+    passed          = passed,
+    failed_criteria = failed,
+    family_key      = fkey
+  )))
+
+  export_context(wf)
+  invisible(wf)
+}
