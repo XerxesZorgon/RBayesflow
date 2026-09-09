@@ -1,0 +1,83 @@
+---
+title: "RBayesflow Phase 2: Prior Specification and Prior Predictive Simulation"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 2 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews. The user is specifying priors and running
+# prior predictive simulation BEFORE fitting any model to data.
+-->
+
+## Setup
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+wf <- readRDS("wf_phase1.rds")   # Load wf from Phase 1
+```
+
+## Prior Specification
+
+Edit the priors below to reflect your domain knowledge.
+
+```{r set-priors}
+library(lme4)
+library(brms)
+data <- sleepstudy
+
+formula <- Reaction ~ Days + (Days | Subject)
+family  <- gaussian()
+
+# Specify your priors here. Each prior() call names a parameter class.
+# See ?brms::set_prior for syntax.
+priors <- c(
+  prior(normal(250, 50), class = Intercept),
+  prior(normal(10, 5),   class = b, coef = Days),
+  prior(exponential(1),  class = sigma)
+)
+```
+
+::: {.callout-tip}
+**Posit Assistant:** Ask "Are these priors reasonable for reaction
+time data measured in milliseconds?" to get a domain-specific
+assessment of prior scale.
+:::
+
+## Phase 2: Prior Predictive Simulation
+
+Run this chunk to simulate from the prior before seeing the data.
+This may take 1–2 minutes.
+
+```{r phase2, eval=FALSE}
+wf <- run_phase2(
+  wf      = wf,
+  formula = formula,
+  family  = family,
+  priors  = priors,
+  data    = data,
+  seed    = 42
+)
+```
+
+::: {.callout-note}
+**Learn mode:** The prior predictive plot shows what data values
+your priors consider plausible before seeing any observations.
+Reaction times below 0 ms or above 5000 ms are implausible — if
+your prior predictive draws include many such values, tighten your
+priors.
+:::
+
+## Save workflow state
+
+```{r save-wf, eval=FALSE}
+saveRDS(wf, "wf_phase2.rds")
+cat("Phase 2 complete. wf saved to wf_phase2.rds\n")
+cat("Proceed to templates/phase3_fit.qmd\n")
+```
