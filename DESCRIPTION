@@ -12,4 +12,5 @@ Imports:
   digest,
   testthat,
   withr,
-  lme4
+  lme4,
+  reformulas

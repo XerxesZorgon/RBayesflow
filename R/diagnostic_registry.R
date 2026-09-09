@@ -18,7 +18,7 @@ family_key <- function(fit) {
                         tolower(names(fit$data)))
 
   # Check for random-effects (hierarchical) structure
-  re_terms <- lme4::findbars(formula(fit))
+  re_terms <- reformulas::findbars(formula(fit))
   is_hierarchical <- !is.null(re_terms) && length(re_terms) > 0
 
   # Key resolution — order matters: time-series before gaussian_hierarchical
@@ -32,7 +32,7 @@ family_key <- function(fit) {
     "negbinomial"
   } else if (fam == "gaussian" && is_hierarchical) {
     "gaussian_hierarchical"
-  } else if (fam %in% names(DIAGNOSTIC_REGISTRY)) {
+  } else if (fam != "unknown" && fam %in% names(DIAGNOSTIC_REGISTRY)) {
     fam
   } else {
     warning("No family-specific diagnostic entry for family '", fam,
@@ -155,7 +155,7 @@ DIAGNOSTIC_REGISTRY[["negbinomial"]] <- function(fit, wf) {
 
 DIAGNOSTIC_REGISTRY[["gaussian_hierarchical"]] <- function(fit, wf) {
   # Identify the grouping variable from the first random-effects term
-  re_terms   <- lme4::findbars(formula(fit))
+  re_terms   <- reformulas::findbars(formula(fit))
   group_var  <- if (length(re_terms) > 0) {
     as.character(re_terms[[1]][[3]])
   } else {
