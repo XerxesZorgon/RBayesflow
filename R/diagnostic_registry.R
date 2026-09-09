@@ -42,3 +42,40 @@ family_key <- function(fit) {
 
   key
 }
+
+# --- Bernoulli family entry (DESIGN.md §8.1) ---
+
+DIAGNOSTIC_REGISTRY[["bernoulli"]] <- function(fit, wf) {
+  # Extract outcome variable name from formula LHS
+  outcome_var <- as.character(formula(fit)[[2]])
+  y           <- fit$data[[outcome_var]]
+
+  # Sample 100 rows from posterior predictive draws
+  pp      <- brms::posterior_predict(fit, ndraws = 100)
+  obs_p   <- mean(y)
+  pred_p  <- mean(pp)
+  ratio   <- if (pred_p > 0) obs_p / pred_p else NA_real_
+
+  warn <- character()
+  if (!is.na(obs_p) && obs_p < 0.05) {
+    warn <- c(warn, sprintf(
+      "Rare event detected (observed rate %.1f%%). Consider Firth penalized logistic or a penalized prior.",
+      obs_p * 100
+    ))
+  }
+
+  list(
+    checks = list(
+      event_rate        = obs_p,
+      predicted_rate    = pred_p,
+      calibration_ratio = ratio
+    ),
+    warnings = warn,
+    plots    = list(
+      calibration = tryCatch(
+        bayesplot::ppc_bars(y, pp),
+        error = function(e) NULL
+      )
+    )
+  )
+}
