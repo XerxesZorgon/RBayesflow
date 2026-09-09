@@ -137,8 +137,90 @@ print.wf_state <- function(wf, ...) {
   invisible(wf)
 }
 
-# diagnose stub — fully implemented in Task 026
-diagnose.wf_state <- function(wf, ...) invisible(wf)
+# --- diagnose.wf_state() — full implementation (Task 026) ---
+# ADR-008: readline() used for acknowledgment; rendering guard prevents
+# silent pass-through when run inside a rendered Quarto document.
+# ADR-011: expert mode auto-acknowledges without prompting.
+
+diagnose.wf_state <- function(wf, ...) {
+  stopifnot(inherits(wf, "wf_state"))
+
+  # Rendering guard (ADR-008): fail loudly if called inside knitr render
+  if (isTRUE(getOption("knitr.in.progress"))) {
+    stop(
+      "wf$diagnose() must be called interactively, not inside a rendered document.\n",
+      "Run this chunk in the RStudio console before rendering your report."
+    )
+  }
+
+  # Show diagnostic plots (stub — fully implemented in R/display.R Task 035)
+  show_diagnostic_plots <- function(wf) {
+    if (length(wf$diagnostics$failed_criteria) > 0) {
+      cat("--- Diagnostic Plots ---\n")
+      cat("[bayesplot panels: implemented in R/display.R]\n")
+    }
+    invisible(NULL)
+  }
+  show_diagnostic_plots(wf)
+
+  # Print human-readable failure summary
+  cat_failed_criteria_detail <- function(wf) {
+    if (length(wf$diagnostics$failed_criteria) > 0) {
+      cat("--- Failed Criteria ---\n")
+      for (criterion in wf$diagnostics$failed_criteria) {
+        val <- switch(criterion,
+          rhat_max      = paste("Rhat_max =",      wf$diagnostics$rhat_max),
+          bulk_ess_min  = paste("bulk_ESS_min =",  wf$diagnostics$bulk_ess_min),
+          tail_ess_min  = paste("tail_ESS_min =",  wf$diagnostics$tail_ess_min),
+          n_divergences = paste("divergences =",   wf$diagnostics$n_divergences),
+          bfmi          = paste("BFMI =",          paste(round(wf$diagnostics$bfmi, 3), collapse = ", ")),
+          max_treedepth = "Max treedepth hit",
+          criterion
+        )
+        cat("  *", criterion, ":", val, "\n")
+      }
+    } else {
+      cat("No failed criteria to display.\n")
+    }
+  }
+  cat_failed_criteria_detail(wf)
+
+  # Expert mode: auto-acknowledge without prompting (ADR-011)
+  if (identical(wf$mode, "expert")) {
+    wf$diagnostics$acknowledged <- TRUE
+    wf$audit_trail <- append(wf$audit_trail, list(list(
+      phase           = 4,
+      action          = "diagnostic_acknowledged",
+      timestamp       = Sys.time(),
+      mode            = "expert",
+      auto_ack        = TRUE,
+      failed_criteria = wf$diagnostics$failed_criteria
+    )))
+    message("Expert mode: diagnostics auto-acknowledged.")
+    export_context(wf)
+    return(invisible(wf))
+  }
+
+  # Learn / practice mode: prompt for acknowledgment
+  ack <- readline("Have you reviewed the diagnostic plots? (yes/no): ")
+  if (tolower(trimws(ack)) == "yes") {
+    wf$diagnostics$acknowledged <- TRUE
+    wf$audit_trail <- append(wf$audit_trail, list(list(
+      phase           = 4,
+      action          = "diagnostic_acknowledged",
+      timestamp       = Sys.time(),
+      mode            = wf$mode,
+      auto_ack        = FALSE,
+      failed_criteria = wf$diagnostics$failed_criteria
+    )))
+    message("Acknowledged. You may now access coefficient output via print(wf).")
+  } else {
+    message("Not acknowledged. Call wf$diagnose() again when ready.")
+  }
+
+  export_context(wf)
+  invisible(wf)
+}
 
 # --- summary and format methods ---
 
