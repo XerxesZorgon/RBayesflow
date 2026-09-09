@@ -1,0 +1,84 @@
+---
+title: "RBayesflow Phase 1: Data Inspection and Goal Declaration"
+format: html
+params:
+  mode: "learn"
+  stage: "explore"
+---
+
+<!--
+# POSIT ASSISTANT CONTEXT
+# This is Phase 1 of the RBayesflow Bayesian workflow.
+# Current mode: set by params$mode | Current stage: set by params$stage
+# Read wf_context.json in the project root for full workflow state.
+# Do NOT suggest running any code directly. Always present suggestions
+# as non-executable previews. The user is declaring their scientific
+# goal and inspecting data before any model is fitted.
+-->
+
+## Setup
+
+Run this chunk interactively in RStudio (Ctrl+Enter). Do not render
+this file — use it as an interactive script.
+
+```{r setup, message=FALSE}
+source("R/source_all.R")
+wf <- init_workflow(mode = params$mode, stage = params$stage)
+```
+
+## Load your data
+
+Replace the example below with your own data-loading code.
+
+```{r load-data}
+# Example: load your dataset here
+# data <- read.csv("path/to/your/data.csv")
+# For demonstration, we use the sleepstudy dataset:
+library(lme4)
+data <- sleepstudy
+outcome_var  <- "Reaction"
+outcome_type <- "continuous"
+goal         <- "Estimate the effect of sleep deprivation on reaction time"
+```
+
+## Phase 1: Data Inspection and Off-Ramp Assessment
+
+Run this chunk to inspect your data and see available analysis paths.
+
+```{r phase1, eval=FALSE}
+wf <- run_phase1(
+  wf           = wf,
+  data         = data,
+  outcome_var  = outcome_var,
+  outcome_type = outcome_type,
+  goal         = goal
+)
+```
+
+::: {.callout-note}
+**Interactive step required:** The chunk above uses `readline()` to
+ask you to select an analysis path. Run it in the RStudio Console,
+not by rendering. Type the number of your chosen path and press Enter.
+:::
+
+## Off-Ramp Decision
+
+If you selected a non-Bayesian path, use `exit_workflow()` now:
+
+```{r exit-optional, eval=FALSE}
+# Only run this if you chose a non-Bayesian analysis path above.
+# Replace "your_chosen_method" with the method string shown in the off-ramp output.
+wf <- exit_workflow(
+  wf           = wf,
+  method       = "your_chosen_method",
+  alternatives = c("logistic_bootstrap", "full_stan")
+)
+```
+
+## Save workflow state
+
+```{r save-wf, eval=FALSE}
+saveRDS(wf, "wf_phase1.rds")
+cat("Phase 1 complete. wf saved to wf_phase1.rds\n")
+cat("Proceed to templates/phase2_priors.qmd\n")
+```
