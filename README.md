@@ -59,7 +59,7 @@ source("R/stan_demo.R")
 ### 3. Initialize a workflow session
 
 ```r
-source("R/init.R")
+source("R/source_all.R")
 wf <- init_workflow(mode = "learn", stage = "explore")
 ```
 
