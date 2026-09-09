@@ -25,7 +25,7 @@
 ---
 
 ## Task 001: Create project folder structure
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** —
 
@@ -49,7 +49,7 @@ Running `list.dirs(recursive = TRUE)` from the project root returns all six dire
 ---
 
 ## Task 002: Write DESCRIPTION dependency manifest
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 001
 
@@ -68,7 +68,7 @@ Create the `DESCRIPTION` file in the project root. This is not a package DESCRIP
 ---
 
 ## Task 003: Initialise renv and snapshot dependencies
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 002
 
@@ -89,7 +89,7 @@ Run `renv::init()` to initialise the renv lockfile, then install all packages li
 ---
 
 ## Task 004: Install and verify CmdStan
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 003
 
@@ -108,7 +108,7 @@ Run `cmdstanr::install_cmdstan()` if CmdStan is not already installed at the ver
 ---
 
 ## Task 005: Write and run Stan smoke test
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 004
 
@@ -127,7 +127,7 @@ Create `examples/stan_demo.R`. The script must: (1) load `cmdstanr`; (2) write a
 ---
 
 ## Task 006: Write known-good example model script
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 005
 
@@ -146,7 +146,7 @@ Create `examples/glmm_gaussian/fit_sleepstudy.R`. The script must fit the sleeps
 ---
 
 ## Task 007: Write known-bad example model script
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-0  
 **Depends on:** Task 006
 
@@ -169,7 +169,7 @@ Create `examples/bernoulli_rare_event/fit_rare_event.R`. The script must contain
 ---
 
 ## Task 008: Write new_wf_state() constructor
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 007
 
@@ -188,7 +188,7 @@ Create `R/wf_state.R`. Implement `new_wf_state(mode, stage)` returning an S3 obj
 ---
 
 ## Task 009: Write UT-1 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 008
 
@@ -207,7 +207,7 @@ Create `tests/testthat/test_wf_state.R` containing exactly the UT-1 test block f
 ---
 
 ## Task 010: Write print.wf_state() display contract
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 009
 
@@ -226,7 +226,7 @@ Add `print.wf_state()` to `R/wf_state.R`. Implement all four display-contract br
 ---
 
 ## Task 011: Write UT-2 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 010
 
@@ -246,7 +246,7 @@ Create `tests/testthat/test_display_contract.R` containing the UT-2 test block f
 ---
 
 ## Task 012: Write summary.wf_state() and format.wf_state()
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 011
 
@@ -265,7 +265,7 @@ Add `summary.wf_state()` and `format.wf_state()` to `R/wf_state.R`. `summary.wf_
 ---
 
 ## Task 013: Write export_context() and wf_context.json schema
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 012
 
@@ -284,7 +284,7 @@ Create `R/context.R`. Implement `export_context(wf, path = "wf_context.json")` t
 ---
 
 ## Task 014: Write UT-5 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 013
 
@@ -303,7 +303,7 @@ Create `tests/testthat/test_context.R` containing the UT-5 test block from TEST_
 ---
 
 ## Task 015: Write init_workflow()
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 014
 
@@ -322,7 +322,7 @@ Create `R/init.R`. Implement `init_workflow(mode = "learn", stage = "explore")` 
 ---
 
 ## Task 016: Write record_fit() hash linkage helper
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 015
 
@@ -341,7 +341,7 @@ With a mock brmsfit (use `mock_brmsfit()` from `tests/testthat/helpers.R`): `wf2
 ---
 
 ## Task 017: Run full M-1 test suite
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-1  
 **Depends on:** Task 016
 
@@ -364,7 +364,7 @@ Run the complete testthat suite for M-1: `testthat::test_dir("tests/testthat/")`
 ---
 
 ## Task 018: Write DIAGNOSTIC_REGISTRY global and family_key() dispatcher
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 017
 
@@ -383,7 +383,7 @@ Create `R/diagnostic_registry.R`. Define `DIAGNOSTIC_REGISTRY` as an empty named
 ---
 
 ## Task 019: Write Bernoulli registry entry
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 018
 
@@ -402,7 +402,7 @@ Add the Bernoulli entry to `DIAGNOSTIC_REGISTRY` in `R/diagnostic_registry.R`, i
 ---
 
 ## Task 020: Write Poisson/NegBinomial registry entry
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 019
 
@@ -421,7 +421,7 @@ Add `DIAGNOSTIC_REGISTRY[["poisson"]]` and `DIAGNOSTIC_REGISTRY[["negbinomial"]]
 ---
 
 ## Task 021: Write hierarchical and time-series registry entries
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 020
 
@@ -440,7 +440,7 @@ All five keys exist as functions: `all(c("bernoulli","poisson","negbinomial","ga
 ---
 
 ## Task 022: Write UT-4 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 021
 
@@ -460,7 +460,7 @@ Create `tests/testthat/test_registry.R` containing the UT-4 test block from TEST
 ---
 
 ## Task 023: Write run_diagnostics() generic checks
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 022
 
@@ -479,7 +479,7 @@ Create `R/diagnostics.R`. Implement `run_diagnostics(fit, wf)` that: (1) calls `
 ---
 
 ## Task 024: Write detect_parameterization() helper
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 023
 
@@ -498,7 +498,7 @@ Add `detect_parameterization(fit)` to `R/diagnostics.R`. Inspect `brms::stancode
 ---
 
 ## Task 025: Write refit_noncentered() stub
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 024
 
@@ -517,7 +517,7 @@ Add `refit_noncentered(wf, fit)` to `R/diagnostics.R`. For v1.0 this function: (
 ---
 
 ## Task 026: Write diagnose.wf_state() method
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 025
 
@@ -536,7 +536,7 @@ Add `diagnose.wf_state(wf, ...)` to `R/wf_state.R`. Implement exactly the method
 ---
 
 ## Task 027: Run full M-2 test suite
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-2  
 **Depends on:** Task 026
 
@@ -559,7 +559,7 @@ Run `testthat::test_dir("tests/testthat/")`. All tests from M-1 (Tasks 009, 011,
 ---
 
 ## Task 028: Write assess_offramps() decision matrix
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 027
 
@@ -578,7 +578,7 @@ Create `R/offramps.R`. Implement `assess_offramps(data, outcome_var, outcome_typ
 ---
 
 ## Task 029: Write UT-6 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 028
 
@@ -597,7 +597,7 @@ Create `tests/testthat/test_offramps.R` containing the UT-6 test block from TEST
 ---
 
 ## Task 030: Write exit_workflow() and YAML exit log
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 029
 
@@ -616,7 +616,7 @@ Create `R/exit_workflow.R`. Implement `exit_workflow(wf, method, alternatives, p
 ---
 
 ## Task 031: Write UT-3 test file
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 030
 
@@ -635,7 +635,7 @@ Create `tests/testthat/test_exit_workflow.R` containing the UT-3 test block from
 ---
 
 ## Task 032: Write Phase 1 R script — data inspection and off-ramps
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 031
 
@@ -654,7 +654,7 @@ Create `R/phase1_exploration.R`. The script must define a function `run_phase1(w
 ---
 
 ## Task 033: Write Phase 2 R script — prior specification and prior predictive
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 032
 
@@ -673,7 +673,7 @@ Create `R/phase2_priors.R`. Define `run_phase2(wf, formula, family, priors, data
 ---
 
 ## Task 034: Write Phase 3 R script — model fitting
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 033
 
@@ -692,7 +692,7 @@ Create `R/phase3_fit.R`. Define `run_phase3(wf, formula, data, family, priors, s
 ---
 
 ## Task 035: Write display.R — mode-aware plot selection
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 034
 
@@ -712,7 +712,7 @@ Create `R/display.R`. Implement the full helper functions referenced in `print.w
 ---
 
 ## Task 036: Write scenario test script for SCENARIO-3 (exit log)
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 035
 
@@ -731,7 +731,7 @@ Create `tests/scenarios/scenario3_exit_log.R`. This script sources all R files, 
 ---
 
 ## Task 037: Write master source script (source_all.R)
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 036
 
@@ -750,7 +750,7 @@ Create `R/source_all.R`. This script sources all R files in dependency order: `w
 ---
 
 ## Task 038: Run full M-3 test suite
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-3  
 **Depends on:** Task 037
 
@@ -773,7 +773,7 @@ Run `testthat::test_dir("tests/testthat/")` and then `source("tests/scenarios/sc
 ---
 
 ## Task 039: Write phase1_exploration.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 038
 
@@ -792,7 +792,7 @@ Create `templates/phase1_exploration.qmd`. The template must: (1) begin with a P
 ---
 
 ## Task 040: Write phase2_priors.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 039
 
@@ -811,7 +811,7 @@ Create `templates/phase2_priors.qmd`. The template must: (1) Posit Assistant con
 ---
 
 ## Task 041: Write phase3_fit.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 040
 
@@ -830,7 +830,7 @@ Create `templates/phase3_fit.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 042: Write phase4_diagnostics.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 041
 
@@ -849,7 +849,7 @@ Create `templates/phase4_diagnostics.qmd`. The template must: (1) Posit Assistan
 ---
 
 ## Task 043: Write phase5_ppc.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 042
 
@@ -868,7 +868,7 @@ Create `templates/phase5_ppc.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 044: Write phase6_loo.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 043
 
@@ -887,7 +887,7 @@ Create `templates/phase6_loo.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 045: Run SCENARIO-4 (off-ramp equal weighting)
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 044
 
@@ -906,7 +906,7 @@ Create `tests/scenarios/scenario4_offramps.R`. Run `assess_offramps()` on `dat_b
 ---
 
 ## Task 046: Run M-4 template inspection check
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-4  
 **Depends on:** Task 045
 
@@ -929,7 +929,7 @@ Create `tests/scenarios/check_templates.R`. The script calls `quarto::quarto_ins
 ---
 
 ## Task 047: Fit known-good model for integration testing
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 046
 
@@ -948,7 +948,7 @@ Run `source("examples/glmm_gaussian/fit_sleepstudy.R")` to produce `fit_good.rds
 ---
 
 ## Task 048: Fit known-bad model for integration testing
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 047
 
@@ -967,7 +967,7 @@ Run `source("examples/bernoulli_rare_event/fit_rare_event.R")` to produce `fit_b
 ---
 
 ## Task 049: Write bayesflow_report.qmd template
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 048
 
@@ -986,7 +986,7 @@ Create `templates/bayesflow_report.qmd`. This is the only template intended to b
 ---
 
 ## Task 050: Write SCENARIO-1 integration test script
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 049
 
@@ -1005,7 +1005,7 @@ Create `tests/scenarios/scenario1_learn_mode.R`. The script must execute all ten
 ---
 
 ## Task 051: Write SCENARIO-2 integration test script
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 050
 
@@ -1024,7 +1024,7 @@ Create `tests/scenarios/scenario2_diagnostic_gate.R`. The script executes all se
 ---
 
 ## Task 052: Write SCENARIO-5 parameterization test script
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-5  
 **Depends on:** Task 051
 
@@ -1047,7 +1047,7 @@ Create `tests/scenarios/scenario5_parameterization.R`. Execute the three asserti
 ---
 
 ## Task 053: Run all unit tests (final)
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-6  
 **Depends on:** Task 052
 
@@ -1066,7 +1066,7 @@ Run `testthat::test_dir("tests/testthat/")`. All six unit tests (UT-1 through UT
 ---
 
 ## Task 054: Run all scenario tests (final)
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-6  
 **Depends on:** Task 053
 
@@ -1085,7 +1085,7 @@ All five scenario scripts complete without error and each prints its "ALL ASSERT
 ---
 
 ## Task 055: Verify README Getting Started section
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-6  
 **Depends on:** Task 054
 
@@ -1104,7 +1104,7 @@ Read `README.md` and verify it contains: (1) installation instructions for all d
 ---
 
 ## Task 056: Update CHANGELOG.md for v0.1.0
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-6  
 **Depends on:** Task 055
 
@@ -1123,7 +1123,7 @@ Add a `## [0.1.0] — 2026-09-08` section to `CHANGELOG.md` listing: all seven p
 ---
 
 ## Task 057: Apply v0.1.0 git tag
-**Status:** [ ] Pending  
+**Status:** [x] Done  
 **Milestone:** M-6  
 **Depends on:** Task 056
 
