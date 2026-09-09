@@ -1,3 +1,6 @@
 wf_context.json
 *.rds
 !examples/**/*.rds
+templates/*.html
+templates/*_files/
+Rplots.pdf

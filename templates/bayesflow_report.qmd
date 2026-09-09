@@ -18,10 +18,16 @@ params:
 -->
 
 ```{r setup, message=FALSE, warning=FALSE}
-source("R/source_all.R")
+library(brms)
+root <- tryCatch(
+  rprojroot::find_root(rprojroot::has_file("DESCRIPTION")),
+  error = function(e) ".."
+)
+source(file.path(root, "R", "source_all.R"))
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 wf  <- readRDS(params$wf_path)
-fit <- readRDS(params$fit_path)
+fit_file <- if (file.exists(params$fit_path)) params$fit_path else file.path(root, params$fit_path)
+fit <- readRDS(fit_file)
 ```
 
 ## Workflow Summary
