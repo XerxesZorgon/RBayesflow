@@ -1,7 +1,7 @@
 # RBayesflow — tasks.md
 
-**Generated:** 2026-09-08  
-**Source documents:** SDD.md, DESIGN.md, PLAN.md, TEST_PLAN.md, ADR-001–011  
+**Generated:** 2026-09-08 (v0.1.0) | **Updated:** 2026-09-10 (v0.2.0)
+**Source documents:** SDD.md, DESIGN.md, PLAN.md, TEST_PLAN.md, ADR-001–012
 **Execution model:** Antigravity Ask mode, one task at a time, gated on confirmed green.
 
 ---
@@ -17,6 +17,10 @@
 | M-4 | Quarto Phase Templates | 039–050 | All six templates run interactively without error in learn + practice modes |
 | M-5 | Report Template + Integration | 051–056 | SCENARIO-1 all 10 assertions pass |
 | M-6 | Acceptance Testing + Polish | 057–064 | SC-1, SC-2, SC-3 verified; v0.1.0 tag applied |
+| M-7a **[v0.2.0]** | install.R + export_context patch | 058–062 | All four functions parse; export_context writes to analysis subfolder |
+| M-7b **[v0.2.0]** | Unit tests UT-5 ext + UT-7–9 | 063–066 | testthat reports 10 tests, 0 failures |
+| M-7c **[v0.2.0]** | User-guide documents | 067–071 | All five docs render as valid Markdown |
+| M-7d **[v0.2.0]** | Verification + v0.2.0 tag | 072–074 | SC-4, SC-5 verified; v0.2.0 tag applied |
 
 ---
 
@@ -25,8 +29,8 @@
 ---
 
 ## Task 001: Create project folder structure
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** —
 
 ### What to do
@@ -49,8 +53,8 @@ Running `list.dirs(recursive = TRUE)` from the project root returns all six dire
 ---
 
 ## Task 002: Write DESCRIPTION dependency manifest
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 001
 
 ### What to do
@@ -68,8 +72,8 @@ Create the `DESCRIPTION` file in the project root. This is not a package DESCRIP
 ---
 
 ## Task 003: Initialise renv and snapshot dependencies
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 002
 
 ### What to do
@@ -89,8 +93,8 @@ Run `renv::init()` to initialise the renv lockfile, then install all packages li
 ---
 
 ## Task 004: Install and verify CmdStan
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 003
 
 ### What to do
@@ -108,8 +112,8 @@ Run `cmdstanr::install_cmdstan()` if CmdStan is not already installed at the ver
 ---
 
 ## Task 005: Write and run Stan smoke test
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 004
 
 ### What to do
@@ -127,8 +131,8 @@ Create `examples/stan_demo.R`. The script must: (1) load `cmdstanr`; (2) write a
 ---
 
 ## Task 006: Write known-good example model script
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 005
 
 ### What to do
@@ -146,8 +150,8 @@ Create `examples/glmm_gaussian/fit_sleepstudy.R`. The script must fit the sleeps
 ---
 
 ## Task 007: Write known-bad example model script
-**Status:** [x] Done  
-**Milestone:** M-0  
+**Status:** [x] Done
+**Milestone:** M-0
 **Depends on:** Task 006
 
 ### What to do
@@ -169,8 +173,8 @@ Create `examples/bernoulli_rare_event/fit_rare_event.R`. The script must contain
 ---
 
 ## Task 008: Write new_wf_state() constructor
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 007
 
 ### What to do
@@ -188,8 +192,8 @@ Create `R/wf_state.R`. Implement `new_wf_state(mode, stage)` returning an S3 obj
 ---
 
 ## Task 009: Write UT-1 test file
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 008
 
 ### What to do
@@ -207,8 +211,8 @@ Create `tests/testthat/test_wf_state.R` containing exactly the UT-1 test block f
 ---
 
 ## Task 010: Write print.wf_state() display contract
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 009
 
 ### What to do
@@ -226,8 +230,8 @@ Add `print.wf_state()` to `R/wf_state.R`. Implement all four display-contract br
 ---
 
 ## Task 011: Write UT-2 test file
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 010
 
 ### What to do
@@ -246,8 +250,8 @@ Create `tests/testthat/test_display_contract.R` containing the UT-2 test block f
 ---
 
 ## Task 012: Write summary.wf_state() and format.wf_state()
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 011
 
 ### What to do
@@ -265,8 +269,8 @@ Add `summary.wf_state()` and `format.wf_state()` to `R/wf_state.R`. `summary.wf_
 ---
 
 ## Task 013: Write export_context() and wf_context.json schema
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 012
 
 ### What to do
@@ -284,8 +288,8 @@ Create `R/context.R`. Implement `export_context(wf, path = "wf_context.json")` t
 ---
 
 ## Task 014: Write UT-5 test file
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 013
 
 ### What to do
@@ -303,8 +307,8 @@ Create `tests/testthat/test_context.R` containing the UT-5 test block from TEST_
 ---
 
 ## Task 015: Write init_workflow()
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 014
 
 ### What to do
@@ -322,8 +326,8 @@ Create `R/init.R`. Implement `init_workflow(mode = "learn", stage = "explore")` 
 ---
 
 ## Task 016: Write record_fit() hash linkage helper
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 015
 
 ### What to do
@@ -341,8 +345,8 @@ With a mock brmsfit (use `mock_brmsfit()` from `tests/testthat/helpers.R`): `wf2
 ---
 
 ## Task 017: Run full M-1 test suite
-**Status:** [x] Done  
-**Milestone:** M-1  
+**Status:** [x] Done
+**Milestone:** M-1
 **Depends on:** Task 016
 
 ### What to do
@@ -364,8 +368,8 @@ Run the complete testthat suite for M-1: `testthat::test_dir("tests/testthat/")`
 ---
 
 ## Task 018: Write DIAGNOSTIC_REGISTRY global and family_key() dispatcher
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 017
 
 ### What to do
@@ -383,8 +387,8 @@ Create `R/diagnostic_registry.R`. Define `DIAGNOSTIC_REGISTRY` as an empty named
 ---
 
 ## Task 019: Write Bernoulli registry entry
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 018
 
 ### What to do
@@ -401,9 +405,9 @@ Add the Bernoulli entry to `DIAGNOSTIC_REGISTRY` in `R/diagnostic_registry.R`, i
 
 ---
 
-## Task 020: Write Poisson/NegBinomial registry entry
-**Status:** [x] Done  
-**Milestone:** M-2  
+## Task 020: Write Poisson/NegBinomial registry entries
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 019
 
 ### What to do
@@ -421,8 +425,8 @@ Add `DIAGNOSTIC_REGISTRY[["poisson"]]` and `DIAGNOSTIC_REGISTRY[["negbinomial"]]
 ---
 
 ## Task 021: Write hierarchical and time-series registry entries
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 020
 
 ### What to do
@@ -440,8 +444,8 @@ All five keys exist as functions: `all(c("bernoulli","poisson","negbinomial","ga
 ---
 
 ## Task 022: Write UT-4 test file
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 021
 
 ### What to do
@@ -460,8 +464,8 @@ Create `tests/testthat/test_registry.R` containing the UT-4 test block from TEST
 ---
 
 ## Task 023: Write run_diagnostics() generic checks
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 022
 
 ### What to do
@@ -479,8 +483,8 @@ Create `R/diagnostics.R`. Implement `run_diagnostics(fit, wf)` that: (1) calls `
 ---
 
 ## Task 024: Write detect_parameterization() helper
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 023
 
 ### What to do
@@ -498,8 +502,8 @@ Add `detect_parameterization(fit)` to `R/diagnostics.R`. Inspect `brms::stancode
 ---
 
 ## Task 025: Write refit_noncentered() stub
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 024
 
 ### What to do
@@ -517,8 +521,8 @@ Add `refit_noncentered(wf, fit)` to `R/diagnostics.R`. For v1.0 this function: (
 ---
 
 ## Task 026: Write diagnose.wf_state() method
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 025
 
 ### What to do
@@ -536,8 +540,8 @@ Add `diagnose.wf_state(wf, ...)` to `R/wf_state.R`. Implement exactly the method
 ---
 
 ## Task 027: Run full M-2 test suite
-**Status:** [x] Done  
-**Milestone:** M-2  
+**Status:** [x] Done
+**Milestone:** M-2
 **Depends on:** Task 026
 
 ### What to do
@@ -559,8 +563,8 @@ Run `testthat::test_dir("tests/testthat/")`. All tests from M-1 (Tasks 009, 011,
 ---
 
 ## Task 028: Write assess_offramps() decision matrix
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 027
 
 ### What to do
@@ -578,8 +582,8 @@ Create `R/offramps.R`. Implement `assess_offramps(data, outcome_var, outcome_typ
 ---
 
 ## Task 029: Write UT-6 test file
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 028
 
 ### What to do
@@ -597,8 +601,8 @@ Create `tests/testthat/test_offramps.R` containing the UT-6 test block from TEST
 ---
 
 ## Task 030: Write exit_workflow() and YAML exit log
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 029
 
 ### What to do
@@ -616,8 +620,8 @@ Create `R/exit_workflow.R`. Implement `exit_workflow(wf, method, alternatives, p
 ---
 
 ## Task 031: Write UT-3 test file
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 030
 
 ### What to do
@@ -635,8 +639,8 @@ Create `tests/testthat/test_exit_workflow.R` containing the UT-3 test block from
 ---
 
 ## Task 032: Write Phase 1 R script — data inspection and off-ramps
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 031
 
 ### What to do
@@ -654,8 +658,8 @@ Create `R/phase1_exploration.R`. The script must define a function `run_phase1(w
 ---
 
 ## Task 033: Write Phase 2 R script — prior specification and prior predictive
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 032
 
 ### What to do
@@ -673,8 +677,8 @@ Create `R/phase2_priors.R`. Define `run_phase2(wf, formula, family, priors, data
 ---
 
 ## Task 034: Write Phase 3 R script — model fitting
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 033
 
 ### What to do
@@ -692,8 +696,8 @@ Create `R/phase3_fit.R`. Define `run_phase3(wf, formula, data, family, priors, s
 ---
 
 ## Task 035: Write display.R — mode-aware plot selection
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 034
 
 ### What to do
@@ -712,8 +716,8 @@ Create `R/display.R`. Implement the full helper functions referenced in `print.w
 ---
 
 ## Task 036: Write scenario test script for SCENARIO-3 (exit log)
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 035
 
 ### What to do
@@ -731,12 +735,12 @@ Create `tests/scenarios/scenario3_exit_log.R`. This script sources all R files, 
 ---
 
 ## Task 037: Write master source script (source_all.R)
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 036
 
 ### What to do
-Create `R/source_all.R`. This script sources all R files in dependency order: `wf_state.R`, `context.R`, `init.R`, `diagnostic_registry.R`, `diagnostics.R`, `offramps.R`, `exit_workflow.R`, `display.R`, `phase1_exploration.R`, `phase2_priors.R`, `phase3_fit.R`. Users run `source("R/source_all.R")` at the top of each phase template to load the full workflow.
+Create `R/source_all.R`. This script sources all R files in dependency order: `wf_state.R`, `context.R`, `init.R`, `diagnostic_registry.R`, `diagnostics.R`, `offramps.R`, `exit_workflow.R`, `display.R`, `phase1_exploration.R`, `phase2_priors.R`, `phase3_fit.R`. Users run `source("R/source_all.R")` at the top of each phase template to load the full workflow. Note: `install.R` will be appended to this list in Task 059 (v0.2.0).
 
 ### Files touched
 - `R/source_all.R` — create
@@ -750,8 +754,8 @@ Create `R/source_all.R`. This script sources all R files in dependency order: `w
 ---
 
 ## Task 038: Run full M-3 test suite
-**Status:** [x] Done  
-**Milestone:** M-3  
+**Status:** [x] Done
+**Milestone:** M-3
 **Depends on:** Task 037
 
 ### What to do
@@ -773,8 +777,8 @@ Run `testthat::test_dir("tests/testthat/")` and then `source("tests/scenarios/sc
 ---
 
 ## Task 039: Write phase1_exploration.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 038
 
 ### What to do
@@ -792,8 +796,8 @@ Create `templates/phase1_exploration.qmd`. The template must: (1) begin with a P
 ---
 
 ## Task 040: Write phase2_priors.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 039
 
 ### What to do
@@ -811,8 +815,8 @@ Create `templates/phase2_priors.qmd`. The template must: (1) Posit Assistant con
 ---
 
 ## Task 041: Write phase3_fit.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 040
 
 ### What to do
@@ -830,8 +834,8 @@ Create `templates/phase3_fit.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 042: Write phase4_diagnostics.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 041
 
 ### What to do
@@ -849,8 +853,8 @@ Create `templates/phase4_diagnostics.qmd`. The template must: (1) Posit Assistan
 ---
 
 ## Task 043: Write phase5_ppc.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 042
 
 ### What to do
@@ -868,8 +872,8 @@ Create `templates/phase5_ppc.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 044: Write phase6_loo.qmd template
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 043
 
 ### What to do
@@ -887,8 +891,8 @@ Create `templates/phase6_loo.qmd`. The template must: (1) Posit Assistant contex
 ---
 
 ## Task 045: Run SCENARIO-4 (off-ramp equal weighting)
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 044
 
 ### What to do
@@ -906,8 +910,8 @@ Create `tests/scenarios/scenario4_offramps.R`. Run `assess_offramps()` on `dat_b
 ---
 
 ## Task 046: Run M-4 template inspection check
-**Status:** [x] Done  
-**Milestone:** M-4  
+**Status:** [x] Done
+**Milestone:** M-4
 **Depends on:** Task 045
 
 ### What to do
@@ -929,8 +933,8 @@ Create `tests/scenarios/check_templates.R`. The script calls `quarto::quarto_ins
 ---
 
 ## Task 047: Fit known-good model for integration testing
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 046
 
 ### What to do
@@ -948,8 +952,8 @@ Run `source("examples/glmm_gaussian/fit_sleepstudy.R")` to produce `fit_good.rds
 ---
 
 ## Task 048: Fit known-bad model for integration testing
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 047
 
 ### What to do
@@ -967,8 +971,8 @@ Run `source("examples/bernoulli_rare_event/fit_rare_event.R")` to produce `fit_b
 ---
 
 ## Task 049: Write bayesflow_report.qmd template
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 048
 
 ### What to do
@@ -986,8 +990,8 @@ Create `templates/bayesflow_report.qmd`. This is the only template intended to b
 ---
 
 ## Task 050: Write SCENARIO-1 integration test script
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 049
 
 ### What to do
@@ -1005,8 +1009,8 @@ Create `tests/scenarios/scenario1_learn_mode.R`. The script must execute all ten
 ---
 
 ## Task 051: Write SCENARIO-2 integration test script
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 050
 
 ### What to do
@@ -1024,8 +1028,8 @@ Create `tests/scenarios/scenario2_diagnostic_gate.R`. The script executes all se
 ---
 
 ## Task 052: Write SCENARIO-5 parameterization test script
-**Status:** [x] Done  
-**Milestone:** M-5  
+**Status:** [x] Done
+**Milestone:** M-5
 **Depends on:** Task 051
 
 ### What to do
@@ -1047,8 +1051,8 @@ Create `tests/scenarios/scenario5_parameterization.R`. Execute the three asserti
 ---
 
 ## Task 053: Run all unit tests (final)
-**Status:** [x] Done  
-**Milestone:** M-6  
+**Status:** [x] Done
+**Milestone:** M-6
 **Depends on:** Task 052
 
 ### What to do
@@ -1066,8 +1070,8 @@ Run `testthat::test_dir("tests/testthat/")`. All six unit tests (UT-1 through UT
 ---
 
 ## Task 054: Run all scenario tests (final)
-**Status:** [x] Done  
-**Milestone:** M-6  
+**Status:** [x] Done
+**Milestone:** M-6
 **Depends on:** Task 053
 
 ### What to do
@@ -1085,8 +1089,8 @@ All five scenario scripts complete without error and each prints its "ALL ASSERT
 ---
 
 ## Task 055: Verify README Getting Started section
-**Status:** [x] Done  
-**Milestone:** M-6  
+**Status:** [x] Done
+**Milestone:** M-6
 **Depends on:** Task 054
 
 ### What to do
@@ -1104,8 +1108,8 @@ Read `README.md` and verify it contains: (1) installation instructions for all d
 ---
 
 ## Task 056: Update CHANGELOG.md for v0.1.0
-**Status:** [x] Done  
-**Milestone:** M-6  
+**Status:** [x] Done
+**Milestone:** M-6
 **Depends on:** Task 055
 
 ### What to do
@@ -1123,8 +1127,8 @@ Add a `## [0.1.0] — 2026-09-08` section to `CHANGELOG.md` listing: all seven p
 ---
 
 ## Task 057: Apply v0.1.0 git tag
-**Status:** [x] Done  
-**Milestone:** M-6  
+**Status:** [x] Done
+**Milestone:** M-6
 **Depends on:** Task 056
 
 ### What to do
@@ -1141,5 +1145,365 @@ Run `git add -A && git commit -m "feat: RBayesflow v0.1.0 — all SC-1, SC-2, SC
 
 ---
 
+## Milestone M-7a: install.R Functions + export_context() Patch **[v0.2.0]**
+
+---
+
+## Task 058: Create data/ directory and rbf_analysis_path() helper
+**Status:** [ ] Pending
+**Milestone:** M-7a
+**Depends on:** Task 057
+
+### What to do
+Create the `data/` directory at the project root with a `.gitkeep` placeholder (analyses that go in it are user-generated and will not be committed by default — add `data/*/` to `.gitignore` but keep `data/.gitkeep`). Then create `R/install.R` and implement `rbf_analysis_path()` as the first and only function in the file at this stage. Per DESIGN.md §10.4: return `getwd()` when called from inside a `data/<name>/` folder (detect by: `.Rprofile` exists in `getwd()` AND `getwd()` is an immediate child of a `data/` folder under the project root as found by `rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))`). Otherwise return the project root path string.
+
+### Files touched
+- `data/.gitkeep` — create
+- `.gitignore` — add `data/*/` entry (keep `!data/.gitkeep`)
+- `R/install.R` — create with `rbf_analysis_path()` only
+
+### Acceptance Criterion
+`parse(file = "R/install.R")` returns without error. `is.function(rbf_analysis_path)` is `TRUE` after `source("R/install.R")`. Function body contains `"rprojroot"` and `"DESCRIPTION"`.
+
+### On Failure
+`TASK 058 FAILED — parse error, function missing, or required strings absent: [observed]`
+
+---
+
+## Task 059: Add install.R to source_all.R load order
+**Status:** [ ] Pending
+**Milestone:** M-7a
+**Depends on:** Task 058
+
+### What to do
+Append `source(file.path(rprojroot::find_root(rprojroot::has_file("DESCRIPTION")), "R", "install.R"))` as the last line of `R/source_all.R`. This ensures `guide()`, `rbf_new()`, and `rbf_analysis_path()` are available in every phase template session. Do not move this line above the core file sources — `install.R` depends on `wf_state.R` being loaded first (because `guide()` calls `new_wf_state()` indirectly via phase-detection field access).
+
+### Files touched
+- `R/source_all.R` — append one `source()` line at the end
+
+### Acceptance Criterion
+`tail(readLines("R/source_all.R"), 3)` contains `"install.R"`. `source("R/source_all.R")` completes without error and `exists("rbf_analysis_path")` returns `TRUE`.
+
+### On Failure
+`TASK 059 FAILED — install.R not in source_all.R or source error: [error text]`
+
+---
+
+## Task 060: Implement rbf_new(name)
+**Status:** [ ] Pending
+**Milestone:** M-7a
+**Depends on:** Task 059
+
+### What to do
+Add `rbf_new(name)` to `R/install.R` per DESIGN.md §10.2. The function must: (1) validate `name` — stop with a clear message if `name` is empty, contains whitespace, or contains path separators (`/` or `\`); (2) determine the project root via `rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))`; (3) construct `target <- file.path(root, "data", name)`; (4) stop with `"Analysis '<name>' already exists at <target>"` if the directory exists; (5) create the directory with `dir.create(target, recursive = TRUE)`; (6) write `.Rprofile` containing exactly `source(file.path("..", "..", "R", "source_all.R"))`; (7) write `wf_context.json` containing `{}`; (8) write `README.md` containing `# Analysis: <name>\nCreated: <Sys.Date()>\n`; (9) print `"Analysis '<name>' created at data/<name>/. Open that folder as your working directory, then call init_workflow()."`.
+
+### Files touched
+- `R/install.R` — add `rbf_new()`
+
+### Acceptance Criterion
+`parse(file = "R/install.R")` returns without error. `is.function(rbf_new)` is `TRUE` after sourcing. The function body contains `"already exists"`, `".Rprofile"`, and `"source_all.R"`.
+
+### On Failure
+`TASK 060 FAILED — parse error, function missing, or required strings absent: [observed]`
+
+---
+
+## Task 061: Implement guide(wf)
+**Status:** [ ] Pending
+**Milestone:** M-7a
+**Depends on:** Task 060
+
+### What to do
+Add `guide(wf)` to `R/install.R` per DESIGN.md §10.3. Implement all ten phase-detection branches in the exact precedence order specified. Each branch must print exactly three lines: `"Current phase : <name>"`, `"What to expect: <one sentence>"`, `"Next step     : <exact call or filename>"`. Return `wf` invisibly. Do not call `cat()` for anything else — no blank lines, no headers, no colour codes.
+
+### Files touched
+- `R/install.R` — add `guide()`
+
+### Acceptance Criterion
+`parse(file = "R/install.R")` returns without error. `is.function(guide)` is `TRUE` after sourcing. For a fresh `wf <- new_wf_state("learn", "explore")`: `out <- capture.output(guide(wf)); length(out) == 3 && grepl("Phase 1", out[1]) && grepl("phase1_exploration", out[3])` returns `TRUE`.
+
+### On Failure
+`TASK 061 FAILED — parse error, wrong output lines, or wrong phase detected: [observed output]`
+
+---
+
+## Task 062: Implement rbf_install(dry_run = FALSE) and patch export_context()
+**Status:** [ ] Pending
+**Milestone:** M-7a
+**Depends on:** Task 061
+
+### What to do
+This task has two parts — implement them in this order:
+
+**Part A — rbf_install():** Add `rbf_install(dry_run = FALSE)` to `R/install.R` per DESIGN.md §10.1. Implement all seven steps. Each step prints `"✓ Step N: <description>"` on pass or `"✗ Step N: <description>\n  → <inline remediation>"` on fail. Stop after Step 2 if the toolchain is broken. When `dry_run = TRUE`, perform checks but skip all `install*()` calls. Return invisibly a named logical vector of length 7. Print the final summary line `"RBayesflow environment: N/7 checks passed."`.
+
+**Part B — export_context() path patch:** Edit `R/context.R` to change the default value of the `path` argument from `"wf_context.json"` to `file.path(rbf_analysis_path(), "wf_context.json")`. This is a one-line change. Do not alter any other logic in the function.
+
+### Files touched
+- `R/install.R` — add `rbf_install()`
+- `R/context.R` — change `path` argument default value
+
+### Acceptance Criterion
+`parse(file = "R/install.R")` and `parse(file = "R/context.R")` both return without error. `is.function(rbf_install)` is `TRUE`. `rbf_install` function body contains `"dry_run"` and `"7 checks passed"`. `readLines("R/context.R")` contains `"rbf_analysis_path()"` in the function signature line.
+
+### On Failure
+`TASK 062 FAILED — parse error or required strings absent: [file and missing string]`
+
+---
+
+## Milestone M-7b: Unit Tests UT-5 Extension + UT-7, UT-8, UT-9 **[v0.2.0]**
+
+---
+
+## Task 063: Extend UT-5 for analysis subfolder path
+**Status:** [ ] Pending
+**Milestone:** M-7b
+**Depends on:** Task 062
+
+### What to do
+Add the subfolder-path test case from TEST_PLAN.md §4 UT-5 extension to `tests/testthat/test_context.R`. The new test must use `withr::with_tempdir()` to create a mock project structure with a `DESCRIPTION` file at root and a `data/my_analysis/.Rprofile` file, then call `withr::with_dir(file.path("data", "my_analysis"), { export_context(wf) })` with no explicit `path` argument, and assert that `"wf_context.json"` exists in `data/my_analysis/`.
+
+### Files touched
+- `tests/testthat/test_context.R` — add one new `test_that()` block
+
+### Acceptance Criterion
+`testthat::test_file("tests/testthat/test_context.R")` reports 2 tests, 0 failures. The new test name contains "subfolder".
+
+### On Failure
+`TASK 063 FAILED — subfolder path test failure: [observed path or error]`
+
+---
+
+## Task 064: Write UT-7 test file — rbf_install() step vector
+**Status:** [ ] Pending
+**Milestone:** M-7b
+**Depends on:** Task 063
+
+### What to do
+Create `tests/testthat/test_install_rbf_install.R` containing the UT-7 test block from TEST_PLAN.md §4. Use `with_mocked_bindings()` to stub `cmdstanr::check_cmdstan_toolchain` and `cmdstanr::cmdstan_version`. Call `rbf_install(dry_run = TRUE)` — the `dry_run` flag prevents any actual install calls, so mocking is only needed for the check calls in Steps 1, 2, 5.
+
+### Files touched
+- `tests/testthat/test_install_rbf_install.R` — create
+
+### Acceptance Criterion
+`testthat::test_file("tests/testthat/test_install_rbf_install.R")` reports 1 test, 3 expectations (`type == "logical"`, `length == 7`, `!is.null(names(result))`), 0 failures.
+
+### On Failure
+`TASK 064 FAILED — UT-7 failure: [failed expect_ and observed]`
+
+---
+
+## Task 065: Write UT-8 test file — rbf_new() folder structure
+**Status:** [ ] Pending
+**Milestone:** M-7b
+**Depends on:** Task 064
+
+### What to do
+Create `tests/testthat/test_install_rbf_new.R` containing both UT-8 test blocks from TEST_PLAN.md §4: (1) correct subfolder structure test — runs `rbf_new("my_analysis")` inside a tempdir that has a `data/` folder and a `DESCRIPTION` file, checks for `.Rprofile`, `wf_context.json`, and `README.md`; (2) duplicate error test — creates `data/existing/` first, then calls `rbf_new("existing")` and expects an error matching `"already exists"`.
+
+### Files touched
+- `tests/testthat/test_install_rbf_new.R` — create
+
+### Acceptance Criterion
+`testthat::test_file("tests/testthat/test_install_rbf_new.R")` reports 2 tests, 5 expectations, 0 failures.
+
+### On Failure
+`TASK 065 FAILED — UT-8 failure: [test name, failed expect_, observed]`
+
+---
+
+## Task 066: Write UT-9 test file — guide() phase detection
+**Status:** [ ] Pending
+**Milestone:** M-7b
+**Depends on:** Task 065
+
+### What to do
+Create `tests/testthat/test_install_guide.R` containing the three UT-9 test blocks from TEST_PLAN.md §4: (1) fresh `wf_state` → Phase 1 detected, `phase1_exploration` in output; (2) failed+unacknowledged diagnostics → `"diagnose"` in output; (3) `stage == "exit"` → `"exit"` in output (case-insensitive).
+
+### Files touched
+- `tests/testthat/test_install_guide.R` — create
+
+### Acceptance Criterion
+`testthat::test_file("tests/testthat/test_install_guide.R")` reports 3 tests, 5 expectations, 0 failures.
+
+### On Failure
+`TASK 066 FAILED — UT-9 failure: [test name, failed expect_, observed output]`
+
+---
+
+## Milestone M-7c: User-Guide Documents **[v0.2.0]**
+
+---
+
+## Task 067: Write docs/user-guide/00-overview.md
+**Status:** [ ] Pending
+**Milestone:** M-7c
+**Depends on:** Task 066
+
+### What to do
+Create `docs/user-guide/00-overview.md`. The document must cover: (1) what RBayesflow is and is not (sequencer, not a package; no new statistical methods); (2) the three-tier help system (written guide → `guide()` function → Posit Assistant); (3) the three user modes in plain language (a paragraph each — no table); (4) the seven workflow phases as a numbered list with a one-sentence description of each; (5) a "Quick start" section listing the three commands a working scientist runs to start a new analysis: `source("R/install.R"); rbf_install(); rbf_new("my_analysis")`. Write in plain English; no R jargon without inline definition.
+
+### Files touched
+- `docs/user-guide/00-overview.md` — create
+
+### Acceptance Criterion
+`file.exists("docs/user-guide/00-overview.md")` is `TRUE`. `readLines(...)` contains all five strings: `"rbf_install"`, `"rbf_new"`, `"guide"`, `"learn"`, `"practice"`. File is valid Markdown: no unclosed fenced code blocks, no broken header syntax.
+
+### On Failure
+`TASK 067 FAILED — file missing or required strings absent: [missing strings]`
+
+---
+
+## Task 068: Write docs/user-guide/01-installation.md
+**Status:** [ ] Pending
+**Milestone:** M-7c
+**Depends on:** Task 067
+
+### What to do
+Create `docs/user-guide/01-installation.md`. The document must cover these steps in order, each as a numbered section: (1) Prerequisites — R ≥ 4.3 (link to r-project.org) and RTools 4.5 for Windows (link to cran.r-project.org/bin/windows/Rtools/); (2) Get RBayesflow — `git clone` command or download-as-zip instructions; (3) The one manual step — install cmdstanr from r-universe: exact two-line R code block (`install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev", getOption("repos")))`); (4) Run `rbf_install()` — exact code block, explanation of each of the 7 printed steps, and what to do if a step fails (pointer back to inline remediation message); (5) Verify — `source("R/source_all.R"); wf <- init_workflow()` and expected output. Each code block must be fenced with ` ```r `.
+
+### Files touched
+- `docs/user-guide/01-installation.md` — create
+
+### Acceptance Criterion
+`file.exists("docs/user-guide/01-installation.md")` is `TRUE`. `readLines(...)` contains all four strings: `"r-universe"`, `"rbf_install"`, `"RTools"`, `"init_workflow"`. File contains at least three fenced ` ```r ` code blocks.
+
+### On Failure
+`TASK 068 FAILED — file missing or required strings/code blocks absent: [missing item]`
+
+---
+
+## Task 069: Write docs/user-guide/02-posit-assistant-setup.md
+**Status:** [ ] Pending
+**Milestone:** M-7c
+**Depends on:** Task 068
+
+### What to do
+Create `docs/user-guide/02-posit-assistant-setup.md`. Structure: (1) introduction — what Posit Assistant does in RBayesflow (reads `wf_context.json`, does not run code, works in both RStudio and Positron); (2) "Option A — RStudio" section: numbered steps: install/enable Posit Assistant if not present → Gear icon → Providers → Add Provider → OpenRouter → paste API key → select model → Done; (3) "Option B — Positron" section: numbered steps: Command Palette → "Positron Assistant: Configure Language Model Providers" → Add → Custom Provider → Base URL `https://openrouter.ai/api/v1` → API key → model → Done; (4) "Getting an OpenRouter API key" sub-section: openrouter.ai → Sign up → Dashboard → Keys → Create Key → copy; (5) "Which model to use" sub-section: recommend `meta-llama/llama-3.3-70b-instruct:free` or `google/gemini-2.0-flash-exp:free` as free-tier options with adequate context windows; note that the user can substitute any model with context window ≥ 8 K tokens; (6) "Using Posit Assistant with RBayesflow" section: run `export_context(wf)` to refresh context → paste the standard prompt into the Assistant chat; (7) "What Posit Assistant will and won't do" — bulleted will/won't list as specified in the Cowork brief.
+
+### Files touched
+- `docs/user-guide/02-posit-assistant-setup.md` — create
+
+### Acceptance Criterion
+`file.exists("docs/user-guide/02-posit-assistant-setup.md")` is `TRUE`. `readLines(...)` contains all five strings: `"openrouter.ai"`, `"RStudio"`, `"Positron"`, `"export_context"`, `"wf_context.json"`.
+
+### On Failure
+`TASK 069 FAILED — file missing or required strings absent: [missing strings]`
+
+---
+
+## Task 070: Write docs/user-guide/03-starting-an-analysis.md and 04-workflow-phases.md
+**Status:** [ ] Pending
+**Milestone:** M-7c
+**Depends on:** Task 069
+
+### What to do
+Create two documents in one task (both are short):
+
+**03-starting-an-analysis.md** — cover: `rbf_new("name")` usage, opening the analysis subfolder as the working directory in RStudio/Positron, calling `init_workflow(mode, stage)` with a table of mode choices and when to use each, calling `guide(wf)` at any time to find out where you are, the `.Rprofile` note (what it does; what to do if you have a conflicting global `.Rprofile`).
+
+**04-workflow-phases.md** — one section per phase (seven sections). Each section: phase name and number as heading, one sentence on purpose, the exact function or template to run, what to expect to see on success, when to move to the next phase. For Phase 4 only: add a callout block explaining that `wf$diagnose()` must be run at the console, not rendered.
+
+### Files touched
+- `docs/user-guide/03-starting-an-analysis.md` — create
+- `docs/user-guide/04-workflow-phases.md` — create
+
+### Acceptance Criterion
+Both files exist. `readLines("docs/user-guide/03-starting-an-analysis.md")` contains `"rbf_new"`, `"init_workflow"`, `"guide"`, `".Rprofile"`. `readLines("docs/user-guide/04-workflow-phases.md")` contains `"Phase 1"`, `"Phase 4"`, `"diagnose"`, `"Phase 7"`.
+
+### On Failure
+`TASK 070 FAILED — file missing or required strings absent: [file name and missing strings]`
+
+---
+
+## Task 071: Write docs/user-guide/05-plotting-reference.md
+**Status:** [ ] Pending
+**Milestone:** M-7c
+**Depends on:** Task 070
+
+### What to do
+Create `docs/user-guide/05-plotting-reference.md`. Cover every plot listed in the Cowork brief's plotting reference specification, in the order specified. For each plot: (1) a level-3 heading with the plot name; (2) a **Purpose** line (one sentence); (3) a **Call** fenced code block with the exact R call; (4) a **What to look for** paragraph: good result, bad result, action on bad result; (5) a **Learn-mode note** sentence where behaviour differs between modes. Sections:
+
+- Phase 1: `esquisse::esquisser(data)` — drag-and-drop EDA; note that the generated ggplot2 code can be pasted into the template
+- Phase 2: `bayesplot::ppc_dens_overlay(y, prior_pred_draws)` — prior predictive density
+- Phase 4: `bayesplot::mcmc_trace(fit)`, `bayesplot::mcmc_rhat(brms::rhat(fit))`, `bayesplot::mcmc_neff(brms::neff_ratio(fit))`, `bayesplot::mcmc_pairs(fit, ...)`
+- Phase 5: `bayesplot::ppc_dens_overlay(y, posterior_predict(fit))`, `bayesplot::ppc_stat(y, posterior_predict(fit), stat = "mean")`, `tidybayes::add_epred_draws(data, fit) |> ggplot(...)`
+- Phase 6: `loo::loo_compare(loo1, loo2)` — reading ELPD difference
+- Phase 7: note only (plots reproduced from saved objects; no new plots generated)
+
+### Files touched
+- `docs/user-guide/05-plotting-reference.md` — create
+
+### Acceptance Criterion
+`file.exists("docs/user-guide/05-plotting-reference.md")` is `TRUE`. `readLines(...)` contains all six strings: `"esquisse"`, `"mcmc_trace"`, `"ppc_dens_overlay"`, `"add_epred_draws"`, `"loo_compare"`, `"Learn-mode"`. File contains at least nine fenced ` ```r ` code blocks (one per distinct plot call).
+
+### On Failure
+`TASK 071 FAILED — file missing, required strings absent, or code block count wrong: [missing item or count found]`
+
+---
+
+## Milestone M-7d: Verification and v0.2.0 Tag **[v0.2.0]**
+
+---
+
+## Task 072: Run full test suite including UT-7 through UT-9
+**Status:** [ ] Pending
+**Milestone:** M-7d
+**Depends on:** Task 071
+
+### What to do
+Run `testthat::test_dir("tests/testthat/")`. All tests UT-1 through UT-9 (10 test files after the UT-5 extension adds one test) must pass with zero failures, zero errors, zero warnings.
+
+### Files touched
+- No files changed.
+
+### Acceptance Criterion
+`testthat::test_dir("tests/testthat/")` reports 10 tests, 0 failures, 0 errors, 0 warnings.
+
+### On Failure
+`TASK 072 FAILED — test suite failure: [N failures, test file names and messages]`
+
+---
+
+## Task 073: Manual SC-4 and SC-5 verification
+**Status:** [ ] Pending
+**Milestone:** M-7d
+**Depends on:** Task 072
+
+### What to do
+Manually verify SC-4 and SC-5 from SDD.md §6. SC-4: confirm all five user-guide files exist and each renders as valid Markdown (open each in RStudio's Preview or run `rmarkdown::render()` with `output_format = "md_document"`). SC-5: read `05-plotting-reference.md` and confirm it has a section for `esquisse::esquisser` and separate sections for at least three `bayesplot` / `tidybayes` calls, each with a "What to look for" paragraph. Record the result as a one-line note appended to `CHANGELOG.md`.
+
+### Files touched
+- `CHANGELOG.md` — append SC-4 and SC-5 verification note
+
+### Acceptance Criterion
+`readLines("CHANGELOG.md")` contains `"SC-4"` and `"SC-5"` and `"verified"` within the last 10 lines of the file.
+
+### On Failure
+`TASK 073 FAILED — CHANGELOG missing SC-4/SC-5 verification lines, or a user-guide file failed to render: [file name and error]`
+
+---
+
+## Task 074: Update CHANGELOG.md and apply v0.2.0 git tag
+**Status:** [ ] Pending
+**Milestone:** M-7d
+**Depends on:** Task 073
+
+### What to do
+Add a `## [0.2.0] — 2026-09-10` section to `CHANGELOG.md` listing: (1) new file `R/install.R` with `rbf_install()`, `rbf_new()`, `guide()`, `rbf_analysis_path()`; (2) `export_context()` path default changed to `rbf_analysis_path()`; (3) `docs/user-guide/` with five documents; (4) ADR-012 accepted; (5) SDD, DESIGN, PLAN, TEST_PLAN updated with `[v0.2.0]` sections; (6) SC-4 and SC-5 verified. Then run `git add -A && git commit -m "feat: RBayesflow v0.2.0 — user guidance layer, rbf_install, rbf_new, guide, user-guide docs" && git tag -a v0.2.0 -m "RBayesflow v0.2.0"`.
+
+### Files touched
+- `CHANGELOG.md` — add v0.2.0 entry
+- Git history and tags only
+
+### Acceptance Criterion
+`grepl("0\\.2\\.0", readLines("CHANGELOG.md"))` has at least one `TRUE` AND `system("git tag")` output contains `"v0.2.0"`.
+
+### On Failure
+`TASK 074 FAILED — CHANGELOG missing v0.2.0 or git tag failed: [observed]`
+
+---
+
 *End of tasks.md*
-*Total tasks: 57 | Milestones: 7 (M-0 through M-6)*
+*Total tasks: 74 | Milestones: 11 (M-0 through M-7d)*
+*v0.1.0 tasks: 001–057 (all complete) | v0.2.0 tasks: 058–074 (pending)*

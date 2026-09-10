@@ -1,9 +1,9 @@
 # RBayesflow — Test Plan (TEST_PLAN.md)
 
-**Status:** Draft  
-**Last updated:** 2026-09-08  
-**Owner:** John Peach  
-**Spec Kit role:** Defines the acceptance test strategy for all three success criteria (SC-1, SC-2, SC-3) and the supporting unit tests. No new statistical code means no statistical unit tests. The primary strategy is scenario-based: run known-good and known-bad models through each mode/stage combination and verify the display contract.
+**Status:** Active
+**Last updated:** 2026-09-10
+**Owner:** John Peach
+**Spec Kit role:** Defines the acceptance test strategy for all success criteria (SC-1 through SC-5) and the supporting unit tests. No new statistical code means no statistical unit tests. The primary strategy is scenario-based: run known-good and known-bad models through each mode/stage combination and verify the display contract.
 
 ---
 
@@ -214,7 +214,7 @@ test_that("exit_workflow produces a valid YAML log with all required fields", {
   wf$declared_goal  <- "coefficient estimation"
   wf$n_observations <- 150
   wf$event_rate     <- 0.03
-  
+
   withr::with_tempdir({
     log_path <- exit_workflow(wf, method = "firth_logistic",
                               alternatives = c("logistic_bootstrap", "full_stan"))
@@ -261,6 +261,25 @@ test_that("export_context produces valid JSON with required fields", {
 })
 ```
 
+**[v0.2.0]** UT-5 is extended to test the subfolder default path. Added case:
+
+```r
+test_that("export_context writes to data/<name>/ when called from an analysis subfolder [v0.2.0]", {
+  withr::with_tempdir({
+    # Simulate an RBayesflow project root with a DESCRIPTION file
+    file.create("DESCRIPTION")
+    dir.create(file.path("data", "my_analysis"), recursive = TRUE)
+    file.create(file.path("data", "my_analysis", ".Rprofile"))
+    withr::with_dir(file.path("data", "my_analysis"), {
+      wf <- new_wf_state(mode = "learn", stage = "explore")
+      path <- export_context(wf)   # no explicit path — use new default
+      expect_true(file.exists("wf_context.json"))
+      expect_equal(normalizePath(path), normalizePath("wf_context.json"))
+    })
+  })
+})
+```
+
 ### UT-6: `assess_offramps()` output contract
 
 ```r
@@ -269,6 +288,76 @@ test_that("assess_offramps returns at least 2 alternatives for binary rare event
                             goal = "coefficient estimation")
   expect_gte(length(result$alternatives), 2)
   expect_true("full_stan" %in% sapply(result$alternatives, `[[`, "method"))
+})
+```
+
+### UT-7: `rbf_install()` step vector **[v0.2.0]**
+
+```r
+test_that("rbf_install returns a named logical vector with 7 entries", {
+  # Mock all system checks to return TRUE
+  # (actual Stan install not triggered in unit test)
+  with_mocked_bindings(
+    check_cmdstan_toolchain = function(...) invisible(NULL),
+    cmdstan_version         = function(...) "2.35.0",
+    .package = "cmdstanr",
+    {
+      result <- rbf_install(dry_run = TRUE)   # dry_run skips install steps
+      expect_type(result, "logical")
+      expect_length(result, 7)
+      expect_named(result)
+    }
+  )
+})
+```
+
+### UT-8: `rbf_new()` folder structure **[v0.2.0]**
+
+```r
+test_that("rbf_new creates correct subfolder structure", {
+  withr::with_tempdir({
+    dir.create("data")
+    file.create("DESCRIPTION")   # needed by rbf_analysis_path()
+    rbf_new("my_analysis")
+    expect_true(dir.exists(file.path("data", "my_analysis")))
+    expect_true(file.exists(file.path("data", "my_analysis", ".Rprofile")))
+    expect_true(file.exists(file.path("data", "my_analysis", "wf_context.json")))
+    expect_true(file.exists(file.path("data", "my_analysis", "README.md")))
+  })
+})
+
+test_that("rbf_new errors if analysis folder already exists", {
+  withr::with_tempdir({
+    file.create("DESCRIPTION")
+    dir.create(file.path("data", "existing"), recursive = TRUE)
+    expect_error(rbf_new("existing"), regexp = "already exists")
+  })
+})
+```
+
+### UT-9: `guide()` phase detection **[v0.2.0]**
+
+```r
+test_that("guide detects Phase 1 for a fresh wf_state", {
+  wf <- new_wf_state(mode = "learn", stage = "explore")
+  out <- capture.output(guide(wf))
+  expect_true(any(grepl("Phase 1", out)))
+  expect_true(any(grepl("phase1_exploration", out)))
+})
+
+test_that("guide detects diagnostic block when diagnostics failed and unacknowledged", {
+  wf <- new_wf_state(mode = "practice", stage = "explore")
+  wf$fit_timestamp             <- Sys.time()
+  wf$diagnostics$passed        <- FALSE
+  wf$diagnostics$acknowledged  <- FALSE
+  out <- capture.output(guide(wf))
+  expect_true(any(grepl("diagnose", out)))
+})
+
+test_that("guide detects exit stage", {
+  wf <- new_wf_state(mode = "practice", stage = "exit")
+  out <- capture.output(guide(wf))
+  expect_true(any(grepl("exit", tolower(out))))
 })
 ```
 
@@ -283,11 +372,16 @@ test_that("assess_offramps returns at least 2 alternatives for binary rare event
 | `diagnose.wf_state()` | Acknowledged / not-acknowledged paths | Unit |
 | `exit_workflow()` | YAML schema compliance | Unit |
 | `assess_offramps()` | All decision-matrix rows | Unit |
-| `export_context()` | JSON schema | Unit |
+| `export_context()` | JSON schema; subfolder path default **[v0.2.0]** | Unit |
 | `DIAGNOSTIC_REGISTRY` entries | Bernoulli, Poisson, Hierarchical, Time-series | Unit (smoke) + Scenario |
 | Full pipeline (SC-1) | `mode = "learn"`, `stage = "explore"` | Scenario |
 | Diagnostic gate (SC-2) | `mode = "learn"` and `mode = "practice"` | Scenario |
 | Exit log (SC-3) | Phase 1 exit and Phase 4 exit | Scenario |
+| **[v0.2.0]** `rbf_install()` | 7-step vector; dry_run path | Unit |
+| **[v0.2.0]** `rbf_new()` | Folder structure; duplicate error | Unit |
+| **[v0.2.0]** `guide()` | All 10 phase-detection branches | Unit |
+| **[v0.2.0]** `rbf_analysis_path()` | Inside subfolder; project root fallback | Unit |
+| **[v0.2.0]** User-guide Markdown | All 5 files render without error | Manual |
 
 ---
 

@@ -3,7 +3,7 @@
 # ADR-006: file-based context; Posit Assistant reads this file from
 # the project root at the start of each session.
 
-export_context <- function(wf, path = "wf_context.json") {
+export_context <- function(wf, path = file.path(rbf_analysis_path(), "wf_context.json")) {
   stopifnot(inherits(wf, "wf_state"))
 
   # Build a serialisable summary — strip non-serialisable fields

@@ -4,3 +4,6 @@ wf_context.json
 templates/*.html
 templates/*_files/
 Rplots.pdf
+
+data/*/
+!data/.gitkeep

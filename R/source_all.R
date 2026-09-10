@@ -39,3 +39,4 @@ source(file.path(root, "R", "display.R"))
 
 cat("RBayesflow workflow loaded.\n")
 cat("Run init_workflow(mode = 'learn') to begin.\n")
+source(file.path(rprojroot::find_root(rprojroot::has_file("DESCRIPTION")), "R", "install.R"))
