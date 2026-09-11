@@ -148,9 +148,12 @@ rbf_install <- function(dry_run = FALSE) {
   
   if (!dry_run) {
     rest_check <- tryCatch({
-      renv::restore()
+      renv::restore(prompt = FALSE)
       TRUE
-    }, error = function(e) FALSE)
+    }, error = function(e) {
+      cat(paste0("  [renv error] ", conditionMessage(e), "\n"))
+      FALSE
+    })
     if (rest_check) {
       cat("✓ Step 4: renv::restore()\n")
       res["renv_restore"] <- TRUE
