@@ -18,9 +18,18 @@ run_phase2 <- function(wf, formula, family, priors, data, seed = 42) {
   wf$family         <- family
 
   cat("Formula:", deparse(formula), "\n")
-  cat("Family: ", deparse(family), "\n")
+  cat("Family: ", family$family, "(", family$link, ")\n")
   cat("Priors:\n")
-  cat(wf$priors_text, "\n\n")
+  prior_df <- if (inherits(priors, "brmsprior")) priors else do.call(c, priors)
+  for (i in seq_len(nrow(prior_df))) {
+    row <- prior_df[i, ]
+    label <- if (nchar(trimws(row$coef)) > 0)
+      paste0(row$class, "[", row$coef, "]")
+    else
+      row$class
+    cat(" ", label, "~", row$prior, "\n")
+  }
+  cat("\n")
 
   # --- Prior predictive simulation ---
   cat("Running prior predictive simulation...\n")
@@ -47,7 +56,16 @@ run_phase2 <- function(wf, formula, family, priors, data, seed = 42) {
 
   # --- Mode-specific plot ---
   if (wf$mode == "learn") {
-    cat("[Phase 2 learn mode: prior predictive distribution plot]\n")
+    y_vals <- as.numeric(data[[as.character(formula[[2]])]])
+    y_lo   <- round(min(y_vals) - sd(y_vals, na.rm = TRUE), 1)
+    y_hi   <- round(max(y_vals) + sd(y_vals, na.rm = TRUE), 1)
+    cat("[Learn mode — Prior Predictive Check]\n")
+    cat("The plot below shows 50 simulated datasets drawn from your priors,\n")
+    cat("overlaid on the observed data distribution (dark line).\n")
+    cat("Ask yourself: do the prior draws cover the plausible range of outcomes?\n")
+    cat(sprintf("  Observed outcome range: %.1f to %.1f\n", min(y_vals), max(y_vals)))
+    cat(sprintf("  Prior draws should stay roughly within: %.1f to %.1f\n", y_lo, y_hi))
+    cat("If prior draws are wildly outside this range, tighten your priors before fitting.\n\n")
     p <- bayesplot::ppc_dens_overlay(
       y   = as.numeric(data[[as.character(formula[[2]])]]),
       yrep = wf$prior_pred_draws[seq_len(min(50, nrow(wf$prior_pred_draws))), ]
