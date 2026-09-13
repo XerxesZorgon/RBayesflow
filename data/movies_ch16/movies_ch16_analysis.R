@@ -192,8 +192,9 @@ cat("\n=== Fig 16.1: Posterior intervals vs true theta ===\n")
 
 post_m2    <- brms::fixef(fit_m2, probs = c(0.025, 0.25, 0.75, 0.975))
 movie_lvls <- levels(dat_m2$movie)
-# fixef() rows are named "movieM01" etc; strip prefix to align with theta_true
-movie_nums <- as.integer(sub("movie M", "", sub("movie", "", rownames(post_m2))))
+# fixef() row names are "movieM01", "movieM02" etc.
+# Strip "movie" then "M" to get integer index.
+movie_nums <- as.integer(sub("M", "", sub("movie", "", rownames(post_m2))))
 
 fig16_1_df <- data.frame(
   truth  = theta_true[movie_nums],
@@ -348,8 +349,8 @@ cat("Fitted hyperparameters:\n")
 print(brms::fixef(fit_m3_bal))
 print(brms::VarCorr(fit_m3_bal))
 
-re_movie <- brms::ranef(fit_m3_bal)$movie[, , "Intercept"]
-re_rater <- brms::ranef(fit_m3_bal)$rater[, , "Intercept"]
+re_movie <- brms::ranef(fit_m3_bal, probs = c(0.025, 0.25, 0.75, 0.975))$movie[, , "Intercept"]
+re_rater <- brms::ranef(fit_m3_bal, probs = c(0.025, 0.25, 0.75, 0.975))$rater[, , "Intercept"]
 
 # alpha recovery (movie effects)
 alpha_df <- data.frame(
@@ -452,8 +453,8 @@ cat("  mu=3.19, sigma_a=0.55, sigma_b=0.61, sigma_y=2.01\n\n")
 print(brms::fixef(fit_m3_unbal))
 print(brms::VarCorr(fit_m3_unbal))
 
-re_movie_u <- brms::ranef(fit_m3_unbal)$movie[, , "Intercept"]
-re_rater_u <- brms::ranef(fit_m3_unbal)$rater[, , "Intercept"]
+re_movie_u <- brms::ranef(fit_m3_unbal, probs = c(0.025, 0.25, 0.75, 0.975))$movie[, , "Intercept"]
+re_rater_u <- brms::ranef(fit_m3_unbal, probs = c(0.025, 0.25, 0.75, 0.975))$rater[, , "Intercept"]
 
 # Movie levels present in unbalanced data
 movie_lvls_u <- rownames(re_movie_u)
