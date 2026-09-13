@@ -66,10 +66,13 @@ run_phase2 <- function(wf, formula, family, priors, data, seed = 42) {
     cat(sprintf("  Observed outcome range: %.1f to %.1f\n", min(y_vals), max(y_vals)))
     cat(sprintf("  Prior draws should stay roughly within: %.1f to %.1f\n", y_lo, y_hi))
     cat("If prior draws are wildly outside this range, tighten your priors before fitting.\n\n")
+    outcome_name <- as.character(formula[[2]])
     p <- bayesplot::ppc_dens_overlay(
-      y   = as.numeric(data[[as.character(formula[[2]])]]),
+      y    = as.numeric(data[[outcome_name]]),
       yrep = wf$prior_pred_draws[seq_len(min(50, nrow(wf$prior_pred_draws))), ]
-    )
+    ) +
+      ggplot2::labs(x = outcome_name) +
+      ggplot2::coord_cartesian(xlim = c(y_lo - 1, y_hi + 1))
     print(p)
   }
 
