@@ -1,18 +1,14 @@
 # RBayesflow — Installation
 
-Follow these steps in order. Do not skip ahead — each step depends
-on the previous one.
+Follow these steps in order. Do not skip ahead — each step depends on the previous one.
 
 ---
 
 ## Step 1: Install R ≥ 4.3
 
-Download and install R 4.3 or later from
-<https://r-project.org>.
+Download and install R 4.3 or later from <https://r-project.org>.
 
-On Windows, also install **RTools 4.5** (the C++ toolchain R needs
-to compile Stan models):
-<https://cran.r-project.org/bin/windows/Rtools/>
+On Windows, also install **RTools 4.5** (the C++ toolchain R needs to compile Stan models): <https://cran.r-project.org/bin/windows/Rtools/>
 
 After installing RTools, restart R before continuing.
 
@@ -28,16 +24,13 @@ Clone the repository:
 # cd RBayesflow
 ```
 
-Or download the ZIP from GitHub and unzip it. Open the resulting
-`RBayesflow/` folder as your working directory in RStudio or
-Positron.
+Or download the ZIP from GitHub and unzip it. Open the resulting `RBayesflow/` folder as your working directory in RStudio or Positron.
 
 ---
 
 ## Step 3: Install cmdstanr (one manual step)
 
-This is the one step `rbf_install()` cannot do for you. Run this
-in a fresh R session from the RBayesflow project root:
+This is the one step `rbf_install()` cannot do for you. Run this in a fresh R session from the RBayesflow project root:
 
 ```r
 install.packages(
@@ -71,13 +64,9 @@ The function runs seven checks and prints `✓` or `✗` for each:
 | 6 | CmdStan install (if absent) |
 | 7 | Stan smoke test — compiles and samples a minimal model |
 
-If any step prints `✗`, the remediation instruction is printed
-directly below it. Follow the instruction, then re-run
-`rbf_install()`. If Step 2 fails, fix the toolchain before
-continuing — subsequent steps cannot succeed without it.
+If any step prints `✗`, the remediation instruction is printed directly below it. Follow the instruction, then re-run `rbf_install()`. If Step 2 fails, fix the toolchain before continuing — subsequent steps cannot succeed without it.
 
-Full remediation guidance is in this document (Steps 1–3 above)
-and in the inline output of `rbf_install()`.
+Full remediation guidance is in this document (Steps 1–3 above) and in the inline output of `rbf_install()`.
 
 ---
 
@@ -99,7 +88,4 @@ What to expect: You will see exploratory plots and off-ramp options.
 Next step     : Open templates/phase1_exploration.qmd
 ````
 
-If you see this, installation is complete. Proceed to
-`docs/user-guide/02-posit-assistant-setup.md` to configure
-Posit Assistant, or to `docs/user-guide/03-starting-an-analysis.md`
-to begin your first analysis.
+If you see this, installation is complete. Proceed to `docs/user-guide/02-posit-assistant-setup.md` to configure Posit Assistant, or to `docs/user-guide/03-starting-an-analysis.md` to begin your first analysis.

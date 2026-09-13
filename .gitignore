@@ -7,3 +7,5 @@ Rplots.pdf
 
 data/*/
 !data/.gitkeep
+!data/movies_ch16/
+data/movies_ch16/*.rds

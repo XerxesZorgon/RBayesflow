@@ -3,8 +3,29 @@
 # Called interactively from templates/phase1_exploration.qmd.
 # DESIGN.md §§4, 5.
 
-run_phase1 <- function(wf, data, outcome_var, outcome_type, goal) {
+run_phase1 <- function(wf, data = NULL, outcome_var = NULL, outcome_type = NULL,
+                       goal = NULL, simulated = FALSE) {
   stopifnot(inherits(wf, "wf_state"))
+
+  # --- Simulated-data fast path ---
+  if (simulated) {
+    if (is.null(goal)) goal <- "model comparison on simulated data with known ground truth"
+    wf$declared_goal  <- goal
+    wf$n_observations <- NA
+    cat("=== Phase 1: Simulated Data ===\n")
+    cat("Goal:", goal, "\n")
+    cat("Off-ramp assessment skipped (ground truth is known).\n\n")
+    wf$audit_trail <- append(wf$audit_trail, list(list(
+      phase     = 1,
+      action    = "bayesian_selected",
+      timestamp = Sys.time(),
+      method    = "full_stan",
+      goal      = goal
+    )))
+    export_context(wf)
+    return(invisible(wf))
+  }
+
   stopifnot(is.data.frame(data))
   stopifnot(is.character(outcome_var), length(outcome_var) == 1)
   stopifnot(outcome_type %in% c("binary", "count", "continuous"))

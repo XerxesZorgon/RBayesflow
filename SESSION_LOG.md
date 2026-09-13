@@ -1,27 +1,33 @@
 # Session Log
 **Updated:** 2026-09-10
 **Active skill:** software-project
-**Last confirmed state:** Task 057, all M-6 tasks complete — v0.1.0 tagged GREEN
+**Last confirmed state:** Task 074 — green. v0.2.0 tagged and committed.
 
 ## What happened this session
-RBayesflow v0.1.0 was completed in full: all 57 tasks across 7 milestones, all three success criteria verified (SC-1 learn mode loop, SC-2 diagnostic gate, SC-3 exit log). The World Cup Chapter 23 example was scoped as a first real-world test case and teaching example. The session ended with a handoff request to plan the next phase: user interface improvements starting with installation and session initialization.
+Completed RBayesflow v0.2.0 in full. All 17 new tasks (058–074)
+across milestones M-7a through M-7d were executed and confirmed
+green. Deliverables: R/install.R (four new functions), export_context()
+path patch, six user-guide documents, ADR-012, updated planning docs,
+10-test suite passing, v0.2.0 git tag applied. Also configured Posit
+Assistant with OpenRouter; Claude Opus 5 via OpenRouter is the active
+model.
 
 ## Decisions made (not yet in an ADR)
-- World Cup example will use raw cmdstanr (not brms formula) to reproduce the exact book bug, then link to RBayesflow via record_fit() manually — faithful to Chapter 23 and pedagogically cleaner
-- For the UX improvement phase: the user should NOT have to copy template files manually; initialization should create the data folder and walk the user through setup step-by-step
+- Posit Assistant provider: OpenRouter with Claude Opus 5 selected.
+  google/gemini-3.8-flash identified as the best low-cost alternative
+  if a cheaper model is needed. docs/user-guide/02-posit-assistant-setup.md
+  still references older free-tier model names and should be updated
+  in a future session.
 
 ## Blocked on / open question
-- None blocking. The next phase is design work (not Antigravity execution), so it should begin with a Cowork or /project-intake session, not a resume.
+- None blocking. One minor follow-up: update 02-posit-assistant-setup.md
+  to replace the two deprecated free-tier model recommendations with
+  google/gemini-3.8-flash as the low-cost alternative.
 
 ## Next action
-Start a NEW project-intake session (not a resume) for the RBayesflow UX improvement phase. The scope is:
-1. Installation instructions — a single `rbayesflow_install()` or `setup_project()` function that checks R version, installs renv, installs CmdStan, verifies the toolchain, and prints a clear pass/fail for each step
-2. Project initialization — `rbayesflow_new(path, mode = "learn")` that creates the data folder, copies the phase templates into the user's project directory, and writes a starter `.Rprofile` that auto-sources `source_all.R`
-3. Step-by-step guidance — a `guide()` or interactive menu that tells the user which phase to open next and what they should expect to see, reading from `wf_context.json` to know the current state
-4. The World Cup Chapter 23 example should be the first worked example in the new UX — it demonstrates why each step matters
-
-Files to read first in the new session:
-- C:\Users\johnx\Documents\WildPeaches\Projects\RBayesflow\docs\SDD.md (WHY)
-- C:\Users\johnx\Documents\WildPeaches\Projects\RBayesflow\docs\DESIGN.md (HOW)
-- C:\Users\johnx\Documents\WildPeaches\Projects\RBayesflow\README.md (current install instructions)
-- C:\Users\johnx\Documents\WildPeaches\Projects\RBayesflow\R\source_all.R (current entry point)
+Start a new analysis session working through the Part 4 case studies
+from Gelman et al. (2020) Bayesian Workflow. Goal: recreate each case
+study's results using RBayesflow. First step: identify which case
+studies are in Part 4, create an analysis subfolder for the first one
+with rbf_new(), and initialise the workflow. Say "resume RBayesflow"
+to pick this up.
