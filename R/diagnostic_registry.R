@@ -30,6 +30,8 @@ family_key <- function(fit) {
     "poisson"
   } else if (fam %in% c("negbinomial", "neg_binomial")) {
     "negbinomial"
+  } else if (fam %in% c("beta_binomial", "betabinomial")) {
+    "beta_binomial"
   } else if (fam == "gaussian" && is_hierarchical) {
     "gaussian_hierarchical"
   } else if (fam != "unknown" && fam %in% names(DIAGNOSTIC_REGISTRY)) {
@@ -150,6 +152,123 @@ DIAGNOSTIC_REGISTRY[["negbinomial"]] <- function(fit, wf) {
     )
   )
 }
+
+# --- Beta-binomial family entry ---
+# Triggered for bounded count outcomes (e.g. cannabis-use days in [0, 28])
+# where binomial underdispersion has been identified and the user has moved
+# to a beta-binomial family to model the extra variance. Added in v0.2.0
+# after Chapter 18 (clinical trial case study) exposed the gap.
+#
+# Key checks:
+#   1. Boundary-mass calibration: observed proportion at 0 and at `trials`
+#      should fall inside the posterior predictive distribution.
+#   2. Variance-to-mean ratio from posterior predictive draws, interpreted
+#      on the same scale as the Poisson/NB checks but normalised by the
+#      trials-adjusted maximum variance.
+#
+# NOTE: brms exposes the `phi` (precision) parameter for beta-binomial.
+#   Larger phi => less overdispersion (pure binomial in the limit phi->inf).
+#   We report the posterior median of phi as a diagnostic number.
+
+DIAGNOSTIC_REGISTRY[["beta_binomial"]] <- function(fit, wf) {
+  stopifnot(inherits(fit, "brmsfit"))
+
+  # Outcome variable and trials constant
+  outcome_var  <- as.character(as.formula(formula(fit))[[2]])
+  y            <- fit$data[[outcome_var]]
+
+  # Trials: the trials() addition sets `trials` as a column or a scalar.
+  # brms stores it in fit$data under the column name used in trials(...).
+  # Try to recover it; fall back to max(y) if unavailable.
+  trials_val <- tryCatch({
+    trials_col <- as.character(
+      rlang::call_args(brms::brmsterms(formula(fit))$adforms$trials)[[1]]
+    )
+    if (trials_col %in% names(fit$data)) {
+      fit$data[[trials_col]]
+    } else {
+      rep(as.integer(trials_col), length(y))   # scalar constant
+    }
+  }, error = function(e) rep(max(y), length(y)))
+
+  n_trials <- if (length(unique(trials_val)) == 1L) trials_val[1L] else NA_integer_
+
+  pp <- brms::posterior_predict(fit, ndraws = 100)
+
+  # 1. Boundary mass: proportion of observations at 0 and at trials
+  obs_zero_rate <- mean(y == 0)
+  obs_max_rate  <- mean(y == n_trials, na.rm = TRUE)
+  pred_zero_rates <- apply(pp, 1, function(r) mean(r == 0))
+  pred_max_rates  <- apply(pp, 1, function(r) mean(r == n_trials, na.rm = TRUE))
+
+  zero_pval <- mean(pred_zero_rates <= obs_zero_rate)
+  max_pval  <- mean(pred_max_rates  <= obs_max_rate)
+
+  warn <- character()
+  if (zero_pval < 0.05 || zero_pval > 0.95) {
+    warn <- c(warn, sprintf(
+      "Boundary mass at 0 poorly calibrated: posterior predictive p-value = %.2f. ",
+      zero_pval
+    ))
+  }
+  if (!is.na(n_trials) && (max_pval < 0.05 || max_pval > 0.95)) {
+    warn <- c(warn, sprintf(
+      "Boundary mass at %d poorly calibrated: posterior predictive p-value = %.2f.",
+      n_trials, max_pval
+    ))
+  }
+
+  # 2. Posterior median of the phi (precision) parameter
+  phi_draws <- tryCatch(
+    as.numeric(posterior::as_draws_matrix(
+      brms::as_draws(fit, variable = "phi")
+    )),
+    error = function(e) NA_real_
+  )
+  phi_median <- if (all(is.na(phi_draws))) NA_real_ else median(phi_draws, na.rm = TRUE)
+
+  if (!is.na(phi_median) && phi_median > 50) {
+    warn <- c(warn, sprintf(
+      "phi median = %.1f (> 50): beta-binomial is approaching binomial. ",
+      phi_median
+    ))
+  }
+
+  # Plots
+  stat_zero <- function(y_vec) mean(y_vec == 0)
+  stat_max  <- if (!is.na(n_trials)) {
+    function(y_vec) mean(y_vec == n_trials)
+  } else {
+    NULL
+  }
+
+  plots <- list(
+    ppc_zero_mass = tryCatch(
+      bayesplot::ppc_stat(y, pp, stat = "stat_zero"),
+      error = function(e) NULL
+    )
+  )
+  if (!is.null(stat_max)) {
+    plots$ppc_max_mass <- tryCatch(
+      bayesplot::ppc_stat(y, pp, stat = "stat_max"),
+      error = function(e) NULL
+    )
+  }
+
+  list(
+    checks = list(
+      n_trials         = n_trials,
+      obs_zero_rate    = obs_zero_rate,
+      obs_max_rate     = obs_max_rate,
+      zero_pvalue      = zero_pval,
+      max_pvalue       = max_pval,
+      phi_median       = phi_median
+    ),
+    warnings = warn,
+    plots    = plots
+  )
+}
+
 
 # --- Gaussian hierarchical entry (DESIGN.md §8.3) ---
 

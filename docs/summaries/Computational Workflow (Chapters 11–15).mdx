@@ -1,0 +1,403 @@
+## Computational Workflow (Chapters 11–15)
+
+Computational workflow is not merely about "running code"; it is about diagnosing and resolving the failures of approximate algorithms. A statistically sound model is useless if the sampler is wandering through **pathological geometries** it cannot map.
+
+### Chapter 11 Fitting statistical models
+
+**Chapter 11** transitions the textbook into **Part 3: Computational workflow**. While Part 2 explored modeling assumptions under the assumption that computation "just works", Chapter 11 marks the transition to the reality of finite computational time and the behavior of our algorithms.
+
+Rather than treating Markov chain Monte Carlo (MCMC) as a black box, the authors outline a practical, workflow-oriented approach to initialization, adaptation, convergence diagnostics, and reporting precision.
+
+------
+
+### 1. Section 11.1: The Typical Set and the Distribution of the Log Posterior Density
+
+A foundational concept for understanding MCMC and computational approximations is the **typical set**. In Bayesian inference, we seek to integrate over the posterior distribution to calculate posterior expectations. The typical set is defined as the set of parameter values for which the log posterior density (the target function) is close to its median.
+
+- **The Nonlinearity of High Dimensions**: A common misconception is that the joint posterior mode (the maximum a posteriori or MAP estimate) represents a typical draw from the distribution. In high dimensions, the mode is almost never in the typical set.
+- **The Annulus (Donut) Geometry**: In a 100-dimensional normal distribution, the log density at the mode is \(-91.9\), whereas the entropy (the negative expectation of the log density) is \(141.9\). Because the vast majority of the probability mass in high dimensions lies on the surface of a hypersphere, the typical set maps to an **annulus** (or donut shape) that completely excludes the region immediately surrounding the mode.
+- **Implication for Sampling**: Optimization and MCMC algorithms typically start in the vast, empty outer regions of high-dimensional space. The sampler must rapidly traverse toward the mode, entering and then exploring the typical set along the way.
+
+------
+
+### 2. Section 11.2: Initial Values
+
+The starting point of any iterative simulation algorithm can have major practical consequences. While initial values do not matter in the asymptotic (infinite-time) limit, poor initialization can cause chains to flounder in low-probability, ill-behaved areas or get stuck in minor local modes.
+
+- **Crude Prior Models**: The authors view the distribution of initial values as a crude "previous model". For instance, Stan's traditional default was to sample initial values randomly from a \(\text{uniform}(-2, 2)\) interval in unconstrained space, though the authors now recommend tighter boundaries like \(\text{uniform}(-0.1, 0.1)\) to prevent numerical instabilities. These bounds are not "priors" in the Bayesian sense, as they do not enter the log posterior density target function.
+- **Variational Initializations**: When dealing with complex geometries or multimodal posteriors, relying on default random initialization is highly unstable. The authors recommend running fast deterministic variational algorithms, such as **Pathfinder**, to locate the typical set first, using the resulting variational draws to initialize HMC chains.
+
+------
+
+### 3. Section 11.3: Adaptation and Warmup
+
+Modern probabilistic programming languages (like Stan) utilize a two-stage MCMC run: **warmup** (or adaptation) and **sampling**.
+
+- ** Warmup Goals**: Warmup is used to:
+  1. Allow the chains to traverse from their initial values to the typical set.
+  2. Eliminate the bias of starting values (the transient phase) by discarding these initial draws.
+  3. Learn and tune algorithmic parameters, such as the step size and mass matrix in Hamiltonian Monte Carlo (HMC), to optimize sampling efficiency.
+- **Learning Posterior Scales**: MCMC works best when parameters are on a unit scale and independent. Part of the warmup is spent learning the scales and correlations of the parameters to transform the target space.
+- **Workflow Shortcuts**: While Stan's default warmup is conservatively long, the authors suggest a highly practical shortcut: using **shorter warmups and shorter post-warmup sampling runs during the early, iterative stages of model exploration**, saving long, expensive runs for the final model.
+
+------
+
+### 4. Section 11.4: How Many Parallel Chains and How Many Iterations?
+
+Determining how long to run an MCMC algorithm requires balancing two challenges: ensuring the chains have mixed (forgotten their starting positions) and collecting enough draws to minimize Monte Carlo error.
+
+- **The Limits of Small Samples**: 100 independent draws are usually sufficient to estimate the posterior mean with a reasonable interval. However, if the goal is to precisely determine the endpoints of a 95% interval for publication or significance testing, even 1,000 independent draws are insufficient to pin down the decimal places.
+- **Monitoring Mixing (\(\hat{R}\))**: To estimate whether chains have converged to the same target distribution, we compare multiple independent chains started from dispersed initial values. Standard practice is to run until **\(\hat{R}\)** (the potential scale reduction factor, comparing between-chain and within-chain variance) **is less than 1.01** for all parameters and quantities of interest.
+- **Parallelism**: Rather than just running longer chains, the authors note that increasing the number of parallel chains (e.g., utilizing modern multi-core processors) is an excellent way to achieve variance reduction and robust convergence checks.
+- **Workflow Summary**:
+  1. Run MCMC with default settings.
+  2. Verify that \(\hat{R} < 1.01\) and check that the effective sample size is sufficient for diagnostic reliability.
+  3. Calibrate the number of iterations based on the posterior uncertainty and the desired number of significant digits.
+
+------
+
+### 5. Section 11.5: Effective Sample Size (ESS) and Monte Carlo Standard Error (MCSE)
+
+Because MCMC draws are sequentially correlated, a sample of \(N = n \times m\) dependent draws contains less information than \(N\) independent draws.
+
+- **Effective Sample Size (ESS)**: ESS (\(S_{\text{eff}}\)) quantifies how many independent draws would contain the same amount of information as your MCMC sample.
+- **Robust Multi-Chain ESS**: The authors' ESS calculation is more robust than traditional single-chain formulas because it incorporates **between-chain variance**. This yields conservative, honest ESS values, especially when chains are poorly mixed.
+- **Bulk ESS**: This is computed by rank-transforming the MCMC simulations to normal space before calculating variances and correlations. Bulk-ESS is highly stable, diagnoses trends or location differences between chains, and **remains well-defined even for distributions with infinite mean or variance** (where standard ESS calculations fail).
+- **Tail ESS**: To evaluate how well the tails of the distribution have been explored, the authors compute the minimum of the effective sample sizes of the 5% and 95% quantiles.
+- **Monte Carlo Standard Error (MCSE)**: This measures the standard deviation of our Monte Carlo estimator. The MCSE for the mean is estimated as the posterior standard deviation divided by \(\sqrt{\text{ESS}}\). To halve the MCSE, you must quadruple the number of iterations.
+
+------
+
+### 6. Section 11.6: How Many Digits to Report
+
+One of the most practical and visible lessons of this chapter is a plea for **reporting fewer digits**.
+
+- **The False Precision Trap**: Filling tables with numbers like "1.7705" is almost always misleading. It is highly unlikely that the MCMC error is small enough to justify the fourth decimal place, and it is rarely of any substantive scientific value.
+- **Two-Significant-Digit Rule**: Relative errors under 1% are typically negligible, making **two significant digits** the standard for final reporting (and one significant digit often sufficient for early exploratory modeling).
+- **Calibrating to MCSE**: The digits reported must be calibrated to the Monte Carlo standard error. If repeating your MCMC run with a different random seed causes the second decimal place to vary, that digit should not be reported as fixed.
+- **The Power of Graphics**: The authors strongly advocate for communicating results via visual graphs (such as shaded density intervals or dot plots) rather than tables of numbers. Graphs naturally prevent readers from over-interpreting minor, noisy decimal variations.
+
+------
+
+### 7. Section 11.7: Replicability of Stochastic Computation
+
+Stochastic simulation algorithms present unique challenges for replicability.
+
+- **Computational Replicability**: Exact bit-by-bit replicability of MCMC draws is virtually impossible across different compilers, operating systems, hardware, or library versions, even when utilizing the same random seed.
+- **Probabilistic Validity**: The target should not be exact bit-by-bit matches, but rather **probabilistic replicability**—ensuring that the Monte Carlo standard error is small enough that any repeated run would yield the exact same scientific and decision-making conclusions.
+- **The Danger of Fixed Seeds**: While setting a fixed seed is helpful for debugging or writing textbook tutorials, the authors caution that fixing seeds in final publications can raise suspicions that the seed was hand-picked (cherry-picked) to yield a desired result. Running more iterations to suppress MCSE is a far more honest solution.
+
+------
+
+### Chapter 12 Diagnosing and fixing problems with fitting
+
+**Chapter 12** represents the operational core of the textbook's computational workflow. While the previous chapter established the mathematical foundation of Markov chain Monte Carlo (MCMC) and convergence diagnostics, Chapter 12 focuses on a pragmatic reality: **computational failures are rarely just "software bugs"**. Instead, they are highly sensitive diagnostic signals that reveal mismatching data, incomplete theories, or flawed model structures.
+
+The chapter introduces the famous **Folk Theorem of Statistical Computing**: *When you have computational problems, often there's a problem with your model*.
+
+------
+
+### 1. Section 12.1 & 12.2: The "Fail Fast" Philosophy and Experimental Computation
+
+The authors apply the computer science principle of **"fail fast"** to statistical modeling. The goal of a healthy workflow is not to find a way to make a bad model run to convergence, but to **waste as little time as possible on models we will ultimately abandon**.
+
+- **The Orbit Metaphor**: To illustrate, the authors compare fitting a normal planetary orbit (Scenario 1) to fitting an orbit perturbed by a "Death Star" (Scenario 3). If we try to fit a single ellipse to highly distorted, irregular data, the optimizer or sampler should **fail quickly**. This prevents us from spending days trying to tune sampling tolerances for a model that is fundamentally misspecified.
+- **Optimization Diagnostics**: Even in simple models (like logistic regression), computation is highly sensitive to initialization. The authors compare two algorithms: **Iteratively Weighted Least Squares (IWLS)** in R's `glm` and **L-BFGS** in Stan. While Stan's L-BFGS optimizer is highly stable across a wide range of starting values, naive optimization algorithms can fail dramatically if initialized far from the typical set, illustrating that **specifying reasonable starting points is a core workflow requirement**.
+
+------
+
+### 2. Section 12.3: Failure Modes and Diagnostic Indicators
+
+The heart of the chapter lies in isolating specific statistical pathologies by analyzing MCMC diagnostic warnings. The authors identify several classic failure modes:
+
+#### A. Improper Posteriors and Complete Separation
+
+When data are completely separable (e.g., in logistic regression where a predictor perfectly partitions the binary outcome), the likelihood has an infinite ridge extending to infinity.
+
+- **Symptom**: If flat priors are assumed, the posterior distribution is improper and has an infinite integral. Hamiltonian Monte Carlo (HMC) will drift off endlessly to infinity.
+- **Diagnostics**: The sampler warns of **divergent transitions** or hitting the **maximum treedepth limit**. Traceplots show parameter values drifting to ridiculous scales (e.g., \(10^{20}\)), and \(\hat{R}\) values climb toward 3, indicating zero mixing.
+- **The Unused Parameter Trap**: A similar improper posterior occurs if a parameter is declared in the code but "forgotten" (omitted) in the model's likelihood block. Stan's **pedantic mode** compiles with a warning pointing this out directly, and traceplots show the unused parameter wandering aimlessly.
+- **The Fix**: Specifying **proper priors** (even weakly informative ones) bounds the parameter space, immediately resolving the computational pathology.
+
+#### B. Redundant Parameters and High Posterior Correlation (Collinearity)
+
+When two or more parameters play identical or highly similar roles, they are not separately identified by the likelihood.
+
+- **Symptom**: The posterior distribution contains a flat diagonal ridge. A common culprit is including an explicit intercept alongside a redundant constant column in the predictor matrix.
+- **Diagnostics**: Stan's sampling time per chain will balloon from fractions of a second to several minutes. Scatterplots of joint draws reveal extreme collinearity (e.g., correlation of \(-0.999\)).
+- **The Centering Fix**: High correlation also arises when predictors are far from the unit scale (e.g., modeling temperature trend intercepts at Year 0 instead of centering around the sample mean). Centering the predictor to have a mean of zero completely eliminates this artificial correlation, speeding up inference by **two orders of magnitude**.
+
+#### C. Multimodal Posteriors and Label Switching
+
+Multimodality arises when the posterior density contains multiple separated peaks of high probability mass.
+
+- **Label Switching in Mixture Models**: If a mixture model has \(K\) components, there are \(K!\) identical copies of the likelihood depending on how components are indexed.
+- **Diagnostics**: Different chains converge to different symmetric modes. Interestingly, because the overall posterior target density is identical, the unnormalized log posterior density (  lp__ ) will mix perfectly (\(\hat{R} = 1.0\)) while the individual parameter estimates have terrible convergence statistics.
+- **Non-Symmetric Multimodality**: If the modes represent truly different regimes (e.g., fitting a single Student-\(t\) model to bimodal normal mixture data), the chains will get stuck. This is diagnosed by **high \(\hat{R}\)** and a **bulk-ESS that is suspiciously smaller than the tail-ESS**. Rank ECDF difference plots will show stark, non-uniform deviations.
+- **The Fixes**: Label switching is resolved either through **ordering constraints** (e.g., ordering mixture means), distinctive priors, or **post-processing reordering** of the posterior draws. Well-separated, non-symmetric modes can be handled using **Pathfinder** to locate different modes, or using **Bayesian stacking** to reweight the chains.
+
+#### D. Numerical Overflows from Distant Initial Values
+
+- **Symptom**: When initial values are randomly drawn from a wide unconstrained default range (like \(\text{uniform}(-2, 2)\)), they can yield mathematically invalid log densities. For example, in a log-link Poisson GLM with unscaled predictors, initializing the slope parameter too high causes the expected count \(\exp(\alpha + \beta x)\) to overflow to floating-point infinity.
+- **Diagnostics**: Stan will fail immediately during the initialization block, filling the console with overflow errors.
+- **The Fix**: Constraining the initialization range (e.g., `init = 0.001` or drawing from a tighter \(\text{uniform}(-0.1, 0.1)\) interval in unconstrained space) or **scaling predictors** to unit scale ensures numerical stability.
+
+#### E. Varying Curvature and "Neal's Funnel"
+
+- **Symptom**: When a group-level variance parameter (\(\sigma_0\)) is weakly identified and approaches zero, the individual group effects (\(\theta_j\)) must compress tightly around the mean. Plotting \(\log(\sigma_0)\) against a group effect reveals a sharp, narrow "funnel". HMC-NUTS requires a large step size to sample the wide mouth of the funnel, but this step size is too large for the narrow neck, causing the integrator to fail.
+- **Diagnostics**: Stan flags **divergent transitions** (divergences), and plotting these divergent draws in red shows them clustering intensely in the narrow neck of the funnel.
+- **The Reparameterization Fix**: The centered parameterization must be mathematically transformed into a **non-centered parameterization**. By defining \(\theta_j = \mu + \sigma_0 \cdot \eta_j\) (where \(\eta_j \sim \text{normal}(0, 1)\)), sampling happens in a transformed, standard-normal space that lacks the difficult funnel geometry.
+
+------
+
+### 3. Section 12.4: Using Modeling Ideas to Address Computing Problems
+
+A core tenet of modern Bayesian workflow is that **computational limitations are often statistical opportunities**. Rather than blindly throwing more CPU cycles or iterations at a slow-mixing chain, we can modify the mathematical structure of the model.
+
+#### The Ladder of Abstraction
+
+To bridge the gap between computer code and statistical theory, the authors construct a **four-step ladder of abstraction** to guide troubleshooting:
+
+1. **Poor mixing of MCMC** (the computational symptom).
+2. **Difficult geometry** (the mathematical explanation of the parameter space).
+3. **Weakly informative data** for some parts of the model (the statistical explanation).
+4. **Substantive prior information** or reparameterization (the modeling solution).
+
+#### Debugging and Simplification Strategies
+
+- **Meet in the Middle**: When a complex model fails to converge, the authors recommend debugging by moving in two directions simultaneously: **gradually simplify the complex model** until it works, and **gradually add features to a simple model** until it breaks. The point where it breaks isolates the pathology.
+- **Sum-to-Zero Constraints**: Useful for addressing parameter redundancy in varying effects.
+- **Laplace Marginalization**: Under latent Gaussian models, marginalizing out highly interacting group-level parameters using a Laplace approximation can bypass difficult geometries entirely, leaving MCMC to sample only from a well-behaved marginal posterior.
+- **Regularization via Prior Information**: Ill-conditioned numerical problems (such as estimating the sum of declining exponentials with similar decay rates) cannot be solved by data alone. They require adding specific, structured domain knowledge as prior distributions to separate collinear parameter spaces.
+
+------
+
+### 4. Section 12.5: What to Do About Convergence Problems
+
+When \(\hat{R} > 1.01\) or effective sample sizes fall below 100, the authors recommend a disciplined, sequential action plan:
+
+1. **Run Longer (Only if Autocorrelation is Mild)**: If \(\hat{R}\) is close to 1.01 (e.g., 1.1 or 1.2), the issue is likely simple autocorrelation, and doubling the chain length is appropriate.
+2. **Do Not Blindly Sample**: If \(\hat{R} \ge 2\) after 1000 iterations, running the chain longer is a waste of resources.
+3. **Active Troubleshooting**: Stop the sampler and actively investigate. Plot traceplots of both warmup and sampling phases, examine joint pair plots, save intermediate quantities, and check model predictions using simulated "fake-data" checks.
+4. **Leverage Advanced Samplers**: If multimodality or highly varying curvature is mathematically necessary for the science, step outside of standard Stan:
+   - Use samplers with **locally adaptive step sizes** (like the WALNUTS algorithm) to navigate varying curvatures.
+   - Use **Parallel Tempering** (conveniently implemented via the `Pigeons.jl` library, which can run models written in Stan) to jump between disconnected modes.
+
+Chapter 12 teaches us that MCMC convergence diagnostics are not passive hurdles to clear; they are **active, mathematical diagnostics** that guide us to a deeper, more robust formulation of our scientific theories.
+
+------
+
+
+
+### Chapter 13 Approximate algorithms and approximate models
+
+**Chapter 13** addresses the critical engineering compromises that arise in a realistic Bayesian workflow. While Hamiltonian Monte Carlo (HMC) with the No-U-Turn Sampler (NUTS) is the gold standard for full, exact posterior exploration, running MCMC to convergence is not always a scalable solution as data and model sizes balloon.
+
+The authors frame approximations not as "cheating," but as essential, structured tools that trade off speed and accuracy depending on where the analyst stands in the modeling process.
+
+------
+
+### 1. Introduction: The Speed vs. Accuracy Tradeoff
+
+In an ideal world, we would build a single, perfect model and solve the exact mathematics. In practice, we must navigate the limitations of both humans and computers. This introduces a fundamental tradeoff between approximate algorithms and MCMC:
+
+- **At the Beginning of the Workflow (Model Exploration)**: We frequently make high-level modeling decisions based on large-scale features of the posterior. Here, fast approximations are incredibly valuable because they allow us to explore the model space rapidly, "failing fast" on coding or conceptual errors without waiting hours for MCMC chains to sample.
+- **At the End of the Workflow (Final Inferences)**: When we need to examine fine-scale, delicate posterior features (such as tails or complex joint correlations), we require the exact integration of MCMC.
+- **The Metaphor**: The authors advise matching the tool to the task: *"do not try to knock down a retaining wall using a sculptor’s chisel."*
+
+------
+
+### 2. Section 13.1: Approximations Based on Joint and Conditional Posterior Modes
+
+When datasets are large and the likelihood is highly informative relative to the number of parameters, the posterior distribution naturally concentrates and approaches normality. In these regimes, mode-based approximations are highly accurate and computationally cheap.
+
+- **Posterior Modes**: Local maxima of the target log posterior density can be located rapidly using deterministic optimization algorithms like **[L-BFGS](https://arxiv.org/abs/1802.05374)**. Point estimates at the mode are useful for making quick predictions, checking model code before running MCMC, and generating starting values.
+- **Laplace Approximation**:
+  - Constructs a multivariate normal approximation centered at the joint posterior mode, using the Hessian (second derivatives) of the log posterior density to quantify uncertainty.
+  - **The Diagnostic Check**: The quality of the Laplace approximation can be assessed by drawing samples from the fitted normal distribution, computing the ratio of the true target density to the approximate density, and calculating the **[Pareto \(\hat{k}\) diagnostic](https://mc-stan.org/posterior/reference/pareto_khat.html)** of these ratios.
+  - If **Pareto \(\hat{k} < 0.7\)**, the approximation is highly accurate, and the density ratios can be safely used as importance weights to further refine and correct the approximation.
+- **Marginalization of Local Parameters**: Mode-based approximations fail for joint hierarchical or mixture models due to extreme skewness and "funnel" geometries. However, the conditional posterior of local parameters given hyperparameters is often close to normal. We can use the Laplace approximation to analytically integrate out these local parameters, approximating the marginal posterior density of the higher-level hyperparameters.
+  - This is the basis for frameworks like **INLA** ([Integrated Nested Laplace Approximation](https://arxiv.org/abs/1907.01248)) ([r-inla.org](https://www.r-inla.org/)) and **TMB** ([Template Model Builder](https://kaskr.github.io/adcomp/Introduction.html)), and is analogous to [Restricted Maximum Likelihood](https://arxiv.org/html/2402.12719v1) (REML) in classical mixed-effects packages like [`lme4`](https://github.com/lme4/lme4/).
+
+------
+
+### 3. Section 13.2: Variational Inference and Pathfinder
+
+**[Variational Inference](https://arxiv.org/abs/1601.00670) (VI)** reframes the integration problem of Bayesian inference as a deterministic optimization problem, making it highly scalable.
+
+- **The Objective**: VI seeks to find the best approximating distribution \(q^*\) within a pre-specified, tractable family of distributions \(\mathcal{Q}\) (typically normal distributions) by minimizing a discrepancy metric, most commonly the **[reverse Kullback-Leibler (KL) divergence](https://www.tuananhle.co.uk/notes/reverse-forward-kl.html)**: \[ \text{KL}(q | p) = \int (\log q(\theta) - \log p(\theta)) q(\theta) d\theta \]
+- **The VI Dilemma**: While fast, VI has known limitations. Because the approximating family \(\mathcal{Q}\) is restricted (such as the "mean-field" assumption which forces a diagonal covariance matrix), the optimal solution is mathematically misspecified. VI can accurately estimate the posterior mean but **systematically underestimates posterior variances and correlations**. Stan includes **ADVI** ([Automatic Differentiation Variational Inference](https://luiarthur.github.io/statorial/varinf/introvi/)) to compute mean-field or dense covariance variational approximations.
+- **Pathfinder**:
+  - A state-of-the-art variational algorithm that utilizes L-BFGS optimization. Rather than trying to find the absolute minimizer of KL divergence (which can be a difficult optimization task in high dimensions), Pathfinder traces the optimization path and selects the **best approximate normal distribution along that path** using a stochastic KL estimate.
+  - **Multi-Pathfinder** runs many paths in parallel to explore different regions. Some paths may get caught in minor local modes, but because they are cheap, they "fail fast". The paths that reach the major mode are retained and used as an importance-sampling proposal distribution to obtain approximate draws or to **initialize MCMC chains closer to the typical set**, drastically reducing warmup times.
+
+------
+
+### 4. Section 13.3: Simulation-Based and Amortized Inference
+
+When statistical models do not have analytically tractable likelihoods (e.g., complex physical or biological simulators), traditional likelihood-based samplers like HMC cannot be used.
+
+- **[Approximate Bayesian Computation](https://en.wikipedia.org/wiki/Approximate_Bayesian_computation) (ABC)**: Rejects or retains parameter draws based on whether data simulated from those parameters (\(y^{\text{rep}}\)) closely matches the observed data \(y\). ABC methods scale poorly to high dimensions due to the **curse of dimensionality** (the probability of simulating matching datasets drops to zero).
+- **[Neural Density Estimators](https://arxiv.org/abs/1910.13233)**: Emulate posterior sampling by using neural networks to transform standard Gaussian noise into draws from the target posterior, trained on simulated parameter-data pairs.
+- **[Amortized Bayesian Inference](https://arxiv.org/abs/2409.04332) (ABI)**: Utilizes a heavy, upfront computational investment (the **training phase** of a generative neural network on simulated data) to enable near-instantaneous posterior inference (the **inference phase**) as new data queries arrive in real-time.
+
+------
+
+### 5. Section 13.4: Divide-and-Conquer Algorithms
+
+When data arrives sequentially or is too large to fit in memory, computation can be parallelized or computed incrementally.
+
+- **Sequential Updating**: Instead of re-fitting a model to the combined dataset \((y_1, y_2)\) from scratch, we can update posterior draws from \(y_1\).
+  - **[PSIS-Updating](https://discourse.mc-stan.org/t/updating-model-based-on-new-data-via-psis/37196)**: We can use **Pareto-smoothed importance sampling (PSIS)** to weight the original draws by the new likelihood \(p(y_2 | \theta)\). This is highly efficient if \(y_2\) is small and relatively uninformative compared to \(y_1\). If \(y_2\) contains too much information, the overlap of distributions is poor (flagged by a high Pareto \(\hat{k}\) diagnostic), requiring a full refit.
+  - **Parametric Prior Passing**: We can approximate the intermediate posterior \(p(\theta | y_1)\) as a multivariate normal and pass it as the prior for fitting \(y_2\).
+- **Parallel Partitioning**: Partitioning data into \(K\) subsets, fitting the model separately to each, and combining the subsets. Advanced federated learning algorithms (like Expectation Propagation) allow partitioned processes to occasionally share information to approximate the joint posterior.
+
+------
+
+### 6. Section 13.5: Fitting Simpler Models for Computational Purposes
+
+If you cannot bring your computation to the model, you can **bring your model to the computation**. The authors list a set of pragmatic mathematical simplifications:
+
+- Using a continuous normal approximation for bounded or discrete outcomes.
+- Stripping out non-linear terms or simplifying varying-slope models to varying-intercept only.
+- Pinning variance parameters to fixed, non-zero values to bypass computational funnels.
+- Using **strong priors as soft constraints** (e.g., \(\theta \sim \text{normal}(0, 0.1)\)) to stabilize HMC and prevent the sampler from wandering into unstable, infinite ridges.
+- Pre-processing data (such as factor analysis or index scores) to reduce the dimensionality of the parameter space.
+
+*The authors add a crucial warning*: parameter constraints and simplifications can sometimes **make models harder to fit** if the restricted parameters are strongly inconsistent with the data. If there is a major conflict between prior constraints and the likelihood, the target distribution can exhibit severe multimodality, causing the sampler to struggle more than it would with a well-specified, flexible model.
+
+------
+
+### 7. Section 13.6: Application of Workflow Ideas to Approximate Computation
+
+Improving computation is fundamentally an iterative statistical process. The authors argue that **an approximate algorithm can be understood as an exact algorithm for an approximate model**:
+
+- *Empirical Bayes* corresponds to a data-dependent point-mass prior.
+- *Laplace approximation* is a data-dependent multivariate normal fit.
+- *Early stopping* of an optimization algorithm is a prior centered at the starting point.
+
+To evaluate any approximation, the modeler should simulate from the desired model with known parameters, fit the model using the approximate algorithm, and verify what can be recovered by comparing the approximate posterior to the true data-generating parameter values.
+
+------
+
+### Chapter 14 Simulation-based calibration (SBC)
+
+**Simulation-based calibration (SBC)**, is the crowning chapter of the computational workflow section. While Chapter 12 discussed how to diagnose MCMC when it throws warnings and Chapter 13 explored fast approximations, Chapter 14 introduces the ultimate, mathematically rigorous framework to **prove that your model code is bug-free and that your MCMC sampler is behaving correctly**.
+
+In the real world of applied Bayesian modeling, writing complex Stan code is highly error-prone. A typo in a likelihood, a mismatched index in a loop, or an incorrectly specified prior can pass compilation and sample smoothly without throwing any computational errors—yet still produce mathematically incorrect posterior distributions. **SBC is the tool designed to catch these silent killers.**
+
+------
+
+### 1. The Core Principle: The Calibration Identity
+
+SBC is built on a fundamental, elegant identity in probability theory. If we generate a "true" parameter value \(\theta^{\text{true}}\) from our prior, and then use that value to simulate a synthetic dataset \(y^{\text{sim}}\) from our likelihood, we are drawing from the joint prior-predictive distribution: \[ \theta^{\text{true}} \sim p(\theta) \] \[ y^{\text{sim}} \sim p(y | \theta^{\text{true}}) \]
+
+If we then fit our model to this synthetic dataset \(y^{\text{sim}}\) to generate a set of posterior draws \(\tilde{\theta} \sim p(\theta | y^{\text{sim}})\), the average of these posteriors across infinitely many simulated datasets must recover the prior distribution exactly: \[ \int p(\theta | y) p(y | \theta') p(\theta') dy d\theta' = p(\theta) \]
+
+In plain terms: **If you simulate parameters from the prior, generate data from those parameters, and fit the model to that data, the average posterior you get back must look exactly like the prior you started with.** Any deviation from this identity is mathematical proof of a bug in your computer code or a failure in your sampler.
+
+------
+
+### 2. The Rank Statistic and the Uniformity Test
+
+Comparing high-dimensional continuous distributions directly is computationally impractical. SBC solves this by translating the continuous joint distribution into a simple, discrete univariate metric: the **rank statistic**.
+
+#### The SBC Algorithm:
+
+1. **Prior Draw**: Sample a parameter vector from the prior: \(\theta^{\text{true}} \sim p(\theta)\).
+2. **Data Generation**: Draw a simulated dataset from the likelihood: \(y^{\text{sim}} \sim p(y | \theta^{\text{true}})\).
+3. **MCMC Fit**: Fit the model to \(y^{\text{sim}}\) and obtain \(L\) posterior draws: \(\theta^{(1)}, \dots, \theta^{(L)}\).
+4. **Rank Calculation**: Calculate the rank \(r\) of \(\theta^{\text{true}}\) relative to the posterior draws. The rank is simply the number of posterior draws that are smaller than the true value: \[ r = \sum_{l=1}^L \mathbb{I}(\theta^{(l)} < \theta^{\text{true}}) \]
+5. **Replicate**: Repeat this entire sequence \(N_{\text{SBC}}\) times (typically 100 to 1,000 times) to obtain a distribution of ranks for each parameter.
+
+#### The Uniformity Property:
+
+If the model is implemented correctly and the sampler is working perfectly, the rank statistic \(r\) must be **uniformly distributed** between \(0\) and \(L\).
+
+The authors advocate visualizing this uniformity using an **[Empirical Cumulative Distribution Function](https://library.virginia.edu/data/articles/understanding-empirical-cumulative-distribution-functions) (ECDF) difference plot** rather than standard histograms. By plotting the ECDF of the ranks minus the diagonal line of a perfect uniform distribution, we can overlay a **95% confidence interval envelope**. If the ECDF curve wanders outside this envelope, we have detected a statistically significant calibration failure.
+
+------
+
+### 3. Diagnosing Pathologies from Rank Plot Shapes
+
+One of the most powerful features of SBC is that the *shape* of the rank deviation tells you exactly what is wrong with your statistical or computational setup:
+
+- **U-Shape (Bimodal Histogram)**: The posterior is systematically **underdispersed (too narrow)**. The true parameter is falling in the extreme tails (rank 0 or rank \(L\)) far more often than expected.
+  - *Culprit*: Your model is overly confident. This typically occurs when the prior in your model code is tighter than the prior used to generate the data, or when the MCMC sampler is suffering from uncorrected funnel geometries and getting stuck in a narrow region, failing to explore the full posterior width.
+- **Dome-Shape (Bell-Curve Histogram)**: The posterior is systematically **overdispersed (too wide)**. The true parameter lands near the center of the posterior draws too often.
+  - *Culprit*: The model is overly conservative. This happens if the model's prior is much wider than the generating prior, or if the MCMC chains have failed to converge and are overstating the uncertainty.
+- **Left/Right Skew (Asymmetric Histogram)**: The posterior is systematically **biased**. For example, a heavy left skew (many low ranks) means the posterior draws are systematically larger than the true parameters.
+  - *Culprit*: You have a systematic bias in your code. This is usually caused by a coding bug in the likelihood (such as a sign error on a regression coefficient), a mismatch in parameter boundaries, or numerical overflow issues.
+
+------
+
+### 4. Practical Workflow Strategies for SBC
+
+SBC is incredibly computationally expensive because it requires fitting your model hundreds of times. The authors outline pragmatic strategies to make SBC a routine part of your workflow:
+
+- **Downscaling**: Do not run SBC on your full, massive dataset. Run it on a highly downscaled version (e.g., a sample size of \(N=20\) instead of \(N=5,000\)). Coding bugs in your model are independent of sample size and will show up just as clearly in small-data regimes.
+- **Testing Approximations**: You can run SBC on fast approximate algorithms (like the Variational Inference or Laplace methods discussed in Chapter 13). Because Variational Inference systematically underestimates posterior variance, running SBC on a VI fit will instantly produce a U-shaped calibration failure, allowing you to quantify exactly how much variance you are sacrificing for speed.
+- **SBC as a Software Gatekeeper**: When developing custom packages or complex production pipelines, the authors recommend using SBC as an automated unit test. If the rank statistics pass the uniformity test, you have a mathematical guarantee of coding and sampling validity.
+
+------
+
+### Chapter 15 Statistical modeling as software development
+
+**Chapter 15** addresses a fundamental truth in modern applied statistics: **developing a statistical model in a probabilistic programming language (like Stan) requires writing code and is thus a form of software development**. The chapter frames the model-building journey through several distinct stages: expressing and debugging the model code, pre-processing the raw data, and post-processing the model outputs to understand, communicate, and utilize the resulting inferences.
+
+To manage the inherent complexity and prevent the "poison salad" of silent bugs, the authors advocate adopting rigorous software engineering practices.
+
+------
+
+### 1. Section 15.1: Writing Code for Single or Multiple Uses
+
+Modeling is fundamentally like coding because a statistical model represents a set of instructions for generating both latent variables and observable data.
+
+- **The Scope of Code**: Any piece of code or statistical model is implicitly bounded by the specific cases to which it is applied. The authors emphasize that we truly understand our code by trying to "break" it in the environments where it is intended to be used.
+- **The off-label Use Hazard**: A common challenge in statistical workflow is translating a portable statistical method to a new context. When code is used "off-label" in unforeseen settings, new problems emerge. For instance, a simple data-processing script may fail when a logarithm is applied to a dataset containing negative values, or a Bayesian model's prior behavior may warp unexpectedly as the dimensionality of the problem expands.
+- **Exploration and Graphics as Model Checks**: Tukey famously described exploratory data analysis as a way to discover unexpected patterns "over and above what we have already described". In a modern workflow, the expected is represented by our model. Thus, exploratory graphics serve as active model checks for developers, while presentation graphics build trust for the end-users by transparently showing where a model succeeds and where it fails. Readability and modularity remain the single biggest factors governing whether code can be maintained or extended by others or by your future self.
+
+------
+
+### 2. Section 15.2: Version Control Smooths Collaborations with Others and with Your Past Self
+
+The authors assert that **version control software, such as Git, should be the first piece of infrastructure established for any scientific project**.
+
+- **Tracking the Modeling Narrative**: Beyond standard code management, version control keeps a detailed historical log of the choices, findings, and pivots made during the iterative model-building process. Keeping structurally distinct models in separate files (rather than continuously overwriting a single file) allows for clean, parallel comparison.
+- **Synchronizing the "Tangle"**: Version control is not merely for code—it must also encompass raw data, processed datasets, generated graphics, and written reports. Packaging and labeling milestone "release candidates" directly in the repository prevents chaotic, unstructured file-naming conventions (e.g., `_final_final_161020.pdf`).
+- **Public Repositories and Policy**: For models designed to guide high-stakes public policy, hosting a public version control repository is essential for scientific transparency, enabling outside researchers to audit the exact data, scripts, and inference parameters used to generate official reports (such as the Imperial College COVID-19 forecasting repository).
+
+------
+
+### 3. Section 15.3: Testing as You Go
+
+The authors define software tests as **"controlled experiments run on the implementation code"**. Rather than relying on anxious manual checks or falling into "blank page syndrome" when trying to design tests, modelers should use a structured testing strategy.
+
+- **Top-Down Design vs. Bottom-Up Implementation**:
+  - *Top-down design* proceeds backward from the ultimate goals of the user to the underlying technical machinery, defining the input data format, prior distributions, posterior predictive checks (PPCs), and simulation-based calibration (SBC).
+  - *Bottom-up implementation* builds upward from small, simple, and well-tested foundational functions to larger, complex functional modules. This ensures that at every step of model development, you are building on solid, validated code, making it trivial to isolate where a bug was introduced.
+- **Modularity over Monoliths**: Monolithic, highly tangled code blocks are difficult to document, read, debug, and maintain. Modularity means encapsulating any repeating code fragments into discrete, low-level functions.
+- **The Standardization Example**: The authors illustrate the subtleties of low-level helper functions using predictor standardization, \(\tilde{x} = (x - \text{mean}(x))/\text{sd}(x)\). Even a simple function like standard deviation (`sd`) can be defined by dividing by \(N\) or \(N-1\), causing mysterious downstream biases if not tested. A robust workflow requires writing unit tests for these helper functions to define boundary behavior (such as how to handle single-element vectors) and implementing input-validation checks to throw clear warnings before silent errors propagate into fatal divide-by-zero crashes.
+- **Fit Fast, Fail Fast**: Aligning with Chapter 12's philosophy, developers should prioritize coding the highest-risk components of their pipeline first. If these key components prove mathematically or computationally intractable, the developer learns this immediately without wasting time building the rest of the scaffolding.
+
+------
+
+### 4. Section 15.4: Making It Essentially Reproducible
+
+Fully replicating a scientific analysis is a lofty and essential goal. The authors distinguish "replicability" (confirming an effect using entirely new, future data) from **"reproducibility" (ensuring another person on another machine can recreate the exact same results and figures from the original data)**.
+
+- **Practical Equivalence**: While exact bit-level reproducibility is often impossible over time due to shifting compilers, CPU architectures, operating system updates, or library versions (even when packaging code inside a Docker container), we must strive for **practical equivalence**. If a slight variation in compiler settings significantly changes the final scientific conclusions, the original inferences were not robust.
+- **Scripting over Interactive Consoles**: Analysts must never rely on entering manual commands directly into an interactive R or Python console. All steps—from raw data cleaning and model fitting to post-processing and plotting—must be encoded in self-contained, automated scripts. These scripts should run flawlessly in a completely clean environment, meaning they must never depend on global workspace variables or unstated local files.
+- **Pipeline Automation**: For extensive simulation studies and iterative modeling, workflow tools like **`targets`** (in R) or **`Snakemake`** (in Python) should be used. These tools automate the entire execution pipeline, ensuring reproducibility while intelligently recomputing only the specific steps affected by a change in data, priors, or code.
+
+------
+
+### 5. Section 15.5: Making It Readable and Maintainable
+
+Code and modeling scripts should be treated as a form of writing intended for an audience—which includes collaborators, peer reviewers, and your own future self.
+
+- **Self-Documenting Code**: One of the primary design goals of the Stan language is to make models self-documenting. Statically typing variables (explicitly declaring them as `data` or `parameters`), enforcing sizes and dimensions, and declaring mathematical bounds (like `<lower=0>`) allows a model to be easily read and understood even without the context of the specific dataset to which it is applied.
+- **Don't Repeat Yourself (DRY)**: When fitting a sequence of similar models, copying and pasting shared code blocks across different model files is a recipe for disaster. If a bug is later discovered in a shared block, the analyst must manually update every single file, which is highly error-prone. Instead, shared components must be kept in modular, external files and dynamically loaded (or included) into individual models as needed.
+
+------
+

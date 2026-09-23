@@ -1,0 +1,46 @@
+## Case Studies
+
+Each of the case studies in *[Bayesian Workflows](https://users.aalto.fi/~ave/Bayesian-Workflow.pdf)* is replicated using Rbayesflow in RStudio. Follow the instructions in *RBayesflow — Installation* and *RBayesflow — Posit Assistant Setup* before beginning these analyses. 
+
+First, change to the RBayesflow directory in RStudio using *Session* $\rightarrow$ *Set Working Directory* $\rightarrow$ *Choose Directory ...,* or simply *Ctrl-Shift-H* from the RStudio console. Next, in the console type,
+
+```R
+source("R/source_all.R")
+```
+
+which should display
+
+```R
+RBayesflow workflow loaded.
+Run init_workflow(mode = 'learn') to begin.
+```
+
+For each project, create a new project folder in the RBayesflow directory, 
+
+```R
+rbf_new("movies_ch16")
+```
+
+The function `rbf_new` is in `install.r`. After creating the subdirectory for this analysis, change directories with *Ctrl-Shift-H* to `data/movies_ch16/`, and then create a workflow using,
+
+```R
+wf <- init_workflow(mode = "learn")
+guide(wf)
+```
+
+You should see this output in the RStudio console:
+
+```R
+ wf <- init_workflow(mode = "learn")
+=== RBayesflow 0.1.0 ===
+Mode : learn 
+Stage: explore 
+Posit Assistant context written to: wf_context.json 
+Run source("R/source_all.R") if not already loaded.
+> guide(wf)
+Current phase : Phase 1: Goal Declaration and Data Inspection
+What to expect: You will see exploratory plots and off-ramp options.
+Next step     : Open templates/phase1_exploration.qmd
+```
+
+For the movies case study, you may use the script `movies_ch16_analysis.R` and step through line by line to see the analysis unfold. Highlight each line (or group of lines) and press *Ctrl-Enter* to run the lines

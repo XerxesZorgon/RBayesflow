@@ -9,3 +9,11 @@ data/*/
 !data/.gitkeep
 !data/movies_ch16/
 data/movies_ch16/*.rds
+
+.codex/
+.cursor/
+.mcp.json
+.vscode/
+.Rhistory
+error.txt
+output.txt
