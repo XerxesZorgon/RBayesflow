@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_zazte3w9",
+  "filetype": "document",
+  "filename": "00-overview",
+  "created_at": "2026-09-24T19:08:29.844Z",
+  "updated_at": "2026-09-24T19:08:29.844Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Overview
 
 RBayesflow is a sequencer for Bayesian analysis in R. It is not an R package and implements no new statistical methods. It is a set of R scripts, Quarto templates, and a workflow-state object (`wf_state`) that guides you through the seven-phase iterative Bayesian workflow described in Gelman et al. (2020), using established libraries — brms, cmdstanr, bayesplot, posterior, tidybayes, loo, ggplot2, and esquisse — at every step.

@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_6xwbo0di",
+  "filetype": "document",
+  "filename": "05-plotting-reference",
+  "created_at": "2026-09-24T19:08:14.502Z",
+  "updated_at": "2026-09-24T19:08:14.502Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Plotting Reference
 
 This reference covers every plot produced in the RBayesflow workflow: which phase it belongs to, the exact R call to produce it, what a good result looks like, what a bad result looks like, and what to do about it. Plots are listed in phase order.

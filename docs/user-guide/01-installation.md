@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_ehgkn9xc",
+  "filetype": "document",
+  "filename": "01-installation",
+  "created_at": "2026-09-24T19:08:28.347Z",
+  "updated_at": "2026-09-24T19:08:28.347Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Installation
 
 Follow these steps in order. Do not skip ahead — each step depends on the previous one.

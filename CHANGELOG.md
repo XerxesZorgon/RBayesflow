@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_s4114syw",
+  "filetype": "document",
+  "filename": "CHANGELOG",
+  "created_at": "2026-09-24T19:07:36.619Z",
+  "updated_at": "2026-09-24T19:07:36.619Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # Changelog
 
 All notable changes to RBayesflow will be documented in this file.

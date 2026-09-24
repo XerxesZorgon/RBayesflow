@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_hka1y2ke",
+  "filetype": "document",
+  "filename": "03-starting-an-analysis",
+  "created_at": "2026-09-24T19:08:24.728Z",
+  "updated_at": "2026-09-24T19:08:24.728Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Starting an Analysis
 
 ---

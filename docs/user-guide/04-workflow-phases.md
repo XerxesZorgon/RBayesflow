@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_f6o12ir3",
+  "filetype": "document",
+  "filename": "04-workflow-phases",
+  "created_at": "2026-09-24T19:08:19.938Z",
+  "updated_at": "2026-09-24T19:08:19.938Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Workflow Phases
 
 Work through these phases in order. Each phase has a corresponding Quarto template in `templates/`. Open the template for that phase, run the cells, and move on when the acceptance note says you are ready.

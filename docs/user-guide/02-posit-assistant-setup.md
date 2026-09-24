@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_iy0x07fg",
+  "filetype": "document",
+  "filename": "02-posit-assistant-setup",
+  "created_at": "2026-09-24T19:08:26.716Z",
+  "updated_at": "2026-09-24T19:08:26.716Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow — Posit Assistant Setup
 
 Posit Assistant is the AI layer in RBayesflow. It reads `wf_context.json` — a JSON snapshot of your current workflow state written by `export_context(wf)` — and uses it to give context-aware guidance: interpreting diagnostics, explaining Rhat and ESS values, pointing to relevant sections of Gelman et al. (2020), and suggesting next steps in plain language.

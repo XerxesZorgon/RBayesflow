@@ -50,3 +50,23 @@ data/ch*/saved_fit/
 # === examples/ rules ===
 # Keep example .rds fixtures (used by test suite).
 !examples/**/*.rds
+
+# Construction documents — not part of the shipped product
+AGENTS.md
+tasks.md
+SESSION_LOG.md
+docs/SDD.md
+docs/DESIGN.md
+docs/PLAN.md
+docs/TEST_PLAN.md
+docs/adr/
+docs/summaries/
+docs/case-study-code-rubric.md
+docs/case-study-style-rubric.md
+case-study-code-rubric.md
+
+# Examples (regenerable; test fixtures)
+examples/
+
+# Machine-specific config
+.Renviron
