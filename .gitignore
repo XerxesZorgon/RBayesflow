@@ -17,3 +17,4 @@ data/movies_ch16/*.rds
 .Rhistory
 error.txt
 output.txt
+!data/ch29_no_vehicles/
