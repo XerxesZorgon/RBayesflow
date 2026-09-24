@@ -51,7 +51,8 @@ diagnose_cmdstan <- function(fit, wf, params = NULL) {
 
   wf$diagnostics$rhat_max          <- max(smry$rhat,     na.rm = TRUE)
   wf$diagnostics$bulk_ess_min      <- as.integer(min(smry$ess_bulk, na.rm = TRUE))
-  wf$diagnostics$tail_ess_min      <- as.integer(min(smry$ess_tail, na.rm = TRUE))
+  tail_ess_raw <- min(smry$ess_tail, na.rm = TRUE)
+  wf$diagnostics$tail_ess_min <- if (is.finite(tail_ess_raw)) as.integer(tail_ess_raw) else NA_integer_
   wf$diagnostics$n_divergences     <- as.integer(sum(diag$num_divergent))
   wf$diagnostics$bfmi              <- diag$ebfmi
   wf$diagnostics$max_treedepth_hit <- any(diag$num_max_treedepth > 0)
@@ -64,12 +65,18 @@ diagnose_cmdstan <- function(fit, wf, params = NULL) {
   )
 
   failed <- character()
-  if (wf$diagnostics$rhat_max      > 1.01) failed <- c(failed, "rhat")
-  if (wf$diagnostics$bulk_ess_min  < 400)  failed <- c(failed, "bulk_ess")
-  if (wf$diagnostics$tail_ess_min  < 400)  failed <- c(failed, "tail_ess")
-  if (wf$diagnostics$n_divergences > 0)    failed <- c(failed, "divergences")
-  if (any(wf$diagnostics$bfmi < 0.3))      failed <- c(failed, "bfmi")
-  if (wf$diagnostics$max_treedepth_hit)    failed <- c(failed, "treedepth")
+  rhat_max     <- wf$diagnostics$rhat_max
+  bulk_ess_min <- wf$diagnostics$bulk_ess_min
+  tail_ess_min <- wf$diagnostics$tail_ess_min
+  bfmi_vals    <- wf$diagnostics$bfmi
+
+  if (!is.na(rhat_max)     && is.finite(rhat_max)     && rhat_max     > 1.01) failed <- c(failed, "rhat")
+  if (!is.na(bulk_ess_min) && is.finite(bulk_ess_min) && bulk_ess_min < 400)  failed <- c(failed, "bulk_ess")
+  if (!is.na(tail_ess_min) && is.finite(tail_ess_min) && tail_ess_min < 400)  failed <- c(failed, "tail_ess")
+  if (is.na(rhat_max) || is.na(bulk_ess_min) || is.na(tail_ess_min))          failed <- c(failed, "ess_na")
+  if (wf$diagnostics$n_divergences > 0)                                        failed <- c(failed, "divergences")
+  if (length(bfmi_vals) > 0 && any(!is.na(bfmi_vals) & bfmi_vals < 0.3))     failed <- c(failed, "bfmi")
+  if (isTRUE(wf$diagnostics$max_treedepth_hit))                                failed <- c(failed, "treedepth")
 
   wf$diagnostics$failed_criteria <- failed
   wf$diagnostics$passed          <- (length(failed) == 0L)
@@ -85,3 +92,4 @@ diagnose_cmdstan <- function(fit, wf, params = NULL) {
 
   wf
 }
+
