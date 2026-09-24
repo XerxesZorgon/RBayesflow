@@ -22,7 +22,22 @@
 
 root <- tryCatch(
   rprojroot::find_root(rprojroot::has_file("DESCRIPTION")),
-  error = function(e) "."
+  error = function(e) {
+    # Strategy 2: walk up from the script's own location
+    here <- normalizePath(
+      Sys.getenv("RENV_PROJECT",
+        unset = file.path(dirname(sys.frame(1)$ofile %||% "."), "..", "..")),
+      mustWork = FALSE
+    )
+    if (file.exists(file.path(here, "DESCRIPTION"))) return(here)
+    # Strategy 3: walk up from getwd()
+    d <- getwd()
+    for (i in 1:4) {
+      if (file.exists(file.path(d, "DESCRIPTION"))) return(d)
+      d <- dirname(d)
+    }
+    stop("Cannot locate RBayesflow project root (no DESCRIPTION found).")
+  }
 )
 
 source(file.path(root, "R", "wf_state.R"))
@@ -41,3 +56,4 @@ source(file.path(root, "R", "display.R"))
 cat("RBayesflow workflow loaded.\n")
 cat("Run init_workflow(mode = 'learn') to begin.\n")
 source(file.path(rprojroot::find_root(rprojroot::has_file("DESCRIPTION")), "R", "install.R"))
+
