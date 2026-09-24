@@ -1,0 +1,127 @@
+=== Ch 22 results log — 2026-09-19 14:41:06 ===
+
+=== PHASE 1: Data ===
+N total cats: 22356
+N adopted   : 11351
+N black cats: 2965
+N other cats: 19391
+
+=== PHASE 2: Generative model and prior predictive simulation ===
+
+=== PHASE 3: Model fitting ===
+
+--- Fitting M1 on simulated data (p = 0.10, 0.15) ---
+
+Book target M1 (sim): p[1] ≈ 0.11, 90% CI (0.10, 0.11)
+                       p[2] ≈ 0.16, 90% CI (0.15, 0.17)
+M1 (sim): posterior summary
+# A tibble: 2 × 10
+  variable   mean median      sd     mad     q5   q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>   <dbl>   <dbl>  <dbl> <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0971 0.0970 0.00403 0.00403 0.0905 0.104  1.00    2723.    2507.
+2 p[2]     0.148  0.148  0.00614 0.00635 0.138  0.158  1.00    3462.    2991.
+
+--- Fitting M1 on real data ---
+
+Book target M1 (real): p[1] ≈ 0.02, p[2] ≈ 0.03
+M1 (real): posterior summary
+# A tibble: 2 × 10
+  variable   mean median       sd      mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>    <dbl>    <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0229 0.0228 0.000583 0.000590 0.0219 0.0238  1.00    3663.    3019.
+2 p[2]     0.0266 0.0266 0.000266 0.000274 0.0262 0.0270  1.00    3554.    2132.
+
+--- Fitting M2 (censoring model) on simulated data (p = 0.01, 0.02) ---
+
+Book target M2 (sim): p[1] ≈ 0.01, p[2] ≈ 0.02
+M2 (sim): posterior summary
+# A tibble: 2 × 10
+  variable    mean  median       sd      mad      q5    q95  rhat ess_bulk ess_tail
+  <chr>      <dbl>   <dbl>    <dbl>    <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.00947 0.00946 0.000712 0.000711 0.00830 0.0107 1.000    3346.    2532.
+2 p[2]     0.0175  0.0175  0.00103  0.00103  0.0159  0.0192 1.00     3431.    2771.
+
+--- Testing M1 on censored simulated data (should overestimate p) ---
+
+True p: 0.01, 0.02  — M1 should recover higher values due to censoring bias
+M1 (sim, censored data): posterior summary — BIASED
+# A tibble: 2 × 10
+  variable   mean median      sd     mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>   <dbl>   <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0452 0.0452 0.00328 0.00324 0.0399 0.0507 1.00     3281.    2467.
+2 p[2]     0.0463 0.0463 0.00261 0.00257 0.0421 0.0508 1.000    4070.    3068.
+
+--- Fitting M2 on real data ---
+
+Book target M2 (real): p[1] < M1 real p[1] (censoring correction reduces p)
+M2 (real): posterior summary
+# A tibble: 2 × 10
+  variable   mean median       sd      mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>    <dbl>    <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0174 0.0174 0.000447 0.000444 0.0167 0.0181  1.00    3368.    2541.
+2 p[2]     0.0206 0.0206 0.000203 0.000200 0.0203 0.0210  1.00    4183.    2807.
+
+--- Fitting M3 (imputation model) on simulated data ---
+M3 (sim): p posterior — should match M2
+# A tibble: 2 × 10
+  variable    mean  median       sd      mad      q5    q95  rhat ess_bulk ess_tail
+  <chr>      <dbl>   <dbl>    <dbl>    <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.00954 0.00953 0.000697 0.000702 0.00844 0.0107 1.00     2958.    3129.
+2 p[2]     0.0176  0.0176  0.00102  0.000979 0.0159  0.0193 1.000    4353.    3522.
+
+--- Fitting M4 (Poisson) on simulated data ---
+M4 (sim): lambda posterior (≈ p under constant hazard)
+# A tibble: 2 × 10
+  variable     mean  median       sd      mad      q5    q95  rhat ess_bulk ess_tail
+  <chr>       <dbl>   <dbl>    <dbl>    <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 lambda[1] 0.00948 0.00946 0.000678 0.000692 0.00839 0.0106  1.00    3340.    2767.
+2 lambda[2] 0.0175  0.0175  0.00101  0.000985 0.0159  0.0193  1.00    2742.    2126.
+
+--- Fitting M5 (varying effects) on simulated data ---
+M5 (sim): population p and dispersion theta
+# A tibble: 4 × 10
+  variable   mean median      sd     mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>   <dbl>   <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]      0.236  0.235 0.0106  0.0110   0.219  0.254  1.01     619.    1339.
+2 p[2]      0.124  0.124 0.00649 0.00639  0.113  0.135  1.00     907.    1744.
+3 theta[1] 17.4   17.1   2.96    2.88    12.9   22.8    1.03     213.     506.
+4 theta[2] 21.7   21.5   3.29    3.16    16.7   27.5    1.01     283.     558.
+
+=== PHASE 4: Diagnostics ===
+
+--- Diagnostic summary: M1 (real data) ---
+  num_divergences: 0
+  num_max_treedepth: 0
+  E-BFMI: 1.1755, 1.27, 0.9908, 1.0113
+M1 (real): parameter summary for Rhat / ESS inspection
+# A tibble: 2 × 10
+  variable   mean median       sd      mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>    <dbl>    <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0229 0.0228 0.000583 0.000590 0.0219 0.0238  1.00    3663.    3019.
+2 p[2]     0.0266 0.0266 0.000266 0.000274 0.0262 0.0270  1.00    3554.    2132.
+
+--- Diagnostic summary: M2 (real data) ---
+  num_divergences: 0
+  num_max_treedepth: 0
+  E-BFMI: 1.1327, 1.1652, 1.1083, 1.1564
+M2 (real): parameter summary for Rhat / ESS inspection
+# A tibble: 2 × 10
+  variable   mean median       sd      mad     q5    q95  rhat ess_bulk ess_tail
+  <chr>     <dbl>  <dbl>    <dbl>    <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+1 p[1]     0.0174 0.0174 0.000447 0.000444 0.0167 0.0181  1.00    3368.    2541.
+2 p[2]     0.0206 0.0206 0.000203 0.000200 0.0203 0.0210  1.00    4183.    2807.
+
+=== PHASE 5: Posterior predictive checks ===
+
+=== PHASE 6: Model comparison ===
+LOO-CV: not performed in Ch 22.
+Model comparison is qualitative: posterior K-M overlay (Figs 22.5, 22.8, 22.9).
+Key finding: M2 (censoring model) better matches the empirical K-M than M1.
+M3 (imputation) recovers same p as M2 at higher computational cost.
+M4 (Poisson) equivalent to M2 under constant hazard (lambda ≈ p).
+M5 (varying effects) captures within-color heterogeneity (simulated data only).
+
+=== Ch 22 analysis complete — 2026-09-19 14:48:58 ===
+Saved: fit1s.rds, fit1s_cens.rds, fit1.rds, fit2s.rds, fit2.rds,
+       fit3s.rds, fit4s.rds, fit2s_ve.rds, fit5s.rds, wf_final.rds
+Figures saved to figs/: Fig-22.1.svg through Fig-22.9.svg

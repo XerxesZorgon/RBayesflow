@@ -1,0 +1,84 @@
+=== Ch 26 results log v2 — 2026-09-21 20:18:07 ===
+Stan-native chapter: brms/run_phase3() bypassed.
+Stan files: step_turn_hmm.stan, step_turn_hmm_covariates.stan,
+            step_turn_hmm_covariates_cre_ncp.stan
+v2: state-specific mu priors + Pathfinder init to fix Rhat 1.73 / ESS 6.
+RBayesflow wf_state initialised: mode=practice, stage=explore
+Data loaded: whiteshark_trackdata.RData
+  dim(sharks.HMMtracks.df): 4602 x 15
+ws_HMM rows after exclusions: 4584
+Unique tracks: 76
+Missing step lengths encoded as -100: 836
+
+=== Model 1: baseline 2-state HMM (v2 — Pathfinder init) ===
+Stan data dimensions: Tlen = 4584, Ntracks = 76
+Pathfinder skipped. Using fixed informative init for all 4 chains.
+fit_2stateHMM saved.
+--- Diagnostics: fit_2stateHMM ---
+  divergences (total): 0
+  max_treedepth hits : 0
+  Rhat_max    : 1.002
+  ESS_bulk_min: 3577
+  passed      : TRUE
+
+=== Model 1 parameter summary (key params) ===
+Key parameter posterior summaries:
+# A tibble: 10 × 10
+   variable    mean  median      sd     mad      q5     q95  rhat ess_bulk ess_tail
+   <chr>      <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
+ 1 mu[1]     0.0790  0.0790 0.00201 0.00199  0.0756  0.0822 1.00     6320.    5678.
+ 2 mu[2]     0.215   0.215  0.00367 0.00370  0.209   0.221  1.00     8767.    5796.
+ 3 shape[1]  2.03    2.03   0.0715  0.0712   1.92    2.15   1.00     7959.    7317.
+ 4 shape[2]  2.86    2.85   0.114   0.114    2.68    3.05   1.00    11431.    6945.
+ 5 rate[1]  25.8    25.7    1.27    1.24    23.8    28.0    1.00     6771.    6438.
+ 6 rate[2]  13.3    13.3    0.510   0.507   12.5    14.1    1.00    10722.    6627.
+ 7 tpm[1,1]  0.957   0.957  0.00598 0.00600  0.947   0.966  1.00     8444.    6087.
+ 8 tpm[2,1]  0.0384  0.0381 0.00584 0.00573  0.0293  0.0484 1.000    8644.    6322.
+ 9 tpm[1,2]  0.0431  0.0429 0.00598 0.00600  0.0337  0.0532 1.00     8444.    6087.
+10 tpm[2,2]  0.962   0.962  0.00584 0.00573  0.952   0.971  1.000    8644.    6322.
+Fig 26.2 saved.
+Fig 26.3 saved.
+Tlen_actual = 4584
+Fig 26.4 saved.
+Fig 26.5 saved.
+Pseudo-residuals: n non-missing = 3748
+Fig 26.6 saved.
+Chum observations in WSF1 T1: 42
+Fig 26.7 saved.
+
+=== Model 2: 2-state HMM with covariates in tpm ===
+HMM_covar dim: 4584 x 5
+Pathfinder (Model 2) skipped. Using fixed informative init for all 4 chains.
+fit_2stateHMM_covariates saved.
+--- Diagnostics: fit_2stateHMM_covariates ---
+  divergences : 0
+  Rhat_max    : 1.0004
+  ESS_bulk_min: 3081
+
+=== Model 3: Covariates + NCP random effects ===
+fit_2stateHMM_tpmcov_crencp saved (1 chain).
+--- Diagnostics: fit_2stateHMM_tpmcov_crencp ---
+  divergences : 0
+  Rhat_max    : 1.0023
+  ESS_bulk_min: 407
+Fig 26.8 saved (base-R male/no-chum tpm grid).
+Fig 26.9 saved (base-R female/no-chum tpm grid).
+Fig 26.10 saved.
+Fig 26.11 saved.
+Fig 26.12 saved.
+Fig 26.combined saved.
+
+=== LOO ===
+Reason: LOO is not computed for these HMM models. The latent-state
+marginalisation in the forward algorithm does not yield a pointwise
+log-likelihood decomposition compatible with PSIS-LOO without a
+leave-one-observation-out re-marginalisation, which is O(T^2) in
+cost. Model comparison in this chapter relies on visual and
+pseudo-residual diagnostics rather than LOO.
+
+wf_context.json written.
+
+=== Ch 26 analysis complete — 2026-09-22 07:30:48 ===
+Saved: fit_2stateHMM.rds, fit_2stateHMM_covariates.rds,
+       fit_2stateHMM_tpmcov_crencp.rds
+Figures: Fig-26.1.svg, Fig-26.2.svg, Fig-26.3.svg, Fig-26.4.svg, Fig-26.5.svg, Fig-26.6.svg, Fig-26.7.svg, Fig-26.8.svg, Fig-26.9.svg, Fig-26.10.svg, Fig-26.11.svg, Fig-26.12.svg, Fig-26.combined.svg

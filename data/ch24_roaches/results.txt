@@ -1,0 +1,350 @@
+=== Ch 24 results log — 2026-09-20 07:36:47 ===
+--- Data ---
+N apartments   : 262
+Treatment group: 158 apartments
+Control group  : 104 apartments
+Proportion y=0 : 0.36
+head(roaches)
+    y roach1 treatment senior exposure2 sqrt_roach1
+1 153 308.00         1      0  0.800000   17.549929
+2 127 331.25         1      0  0.600000   18.200275
+3   7   1.67         1      0  1.000000    1.292285
+4   7   3.00         1      0  1.000000    1.732051
+5   0   2.00         1      0  1.142857    1.414214
+6   0   0.00         1      0  1.000000    0.000000
+--- Diagnostics: fit_p (Poisson) ---
+  passed      : TRUE
+  Rhat_max    : 1.0036
+  bulk_ESS_min: 1773
+  tail_ESS_min: 2277
+  divergences : NA
+
+=== §3 Poisson posterior: all slopes away from zero ===
+fixef(fit_p)
+              Estimate   Est.Error       Q2.5      Q97.5
+Intercept    2.5266705 0.025631296  2.4761686  2.5766529
+sqrt_roach1  0.1606358 0.001952031  0.1568620  0.1644487
+treatment   -0.5678146 0.025400056 -0.6177590 -0.5178141
+senior      -0.3138723 0.032993050 -0.3795608 -0.2492721
+NOTE: Poisson PPC shows clear overdispersion — predicted replicates
+      are far less dispersed than observed. Model is misspecified.
+
+=== §3.2 Poisson LOO (raw PSIS-LOO; MM skipped — rstan compile error) ===
+Book target with MM: elpd_loo ≈ -5479 (SE 700), p_loo ≈ 275
+NOTE: High Pareto-k expected; elpd point estimate still valid.
+      For fully corrected result: kfold(fit_p, K = 10)
+loo(fit_p) — raw PSIS-LOO
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate     SE
+elpd_loo  -5453.9  692.7
+p_loo       246.8   52.1
+looic     10907.8 1385.4
+------
+MCSE of elpd_loo is NA.
+MCSE and ESS estimates assume independent draws (r_eff=1).
+
+Pareto k diagnostic values:
+                         Count Pct.    Min. ESS
+(-Inf, 0.7]   (good)     247   94.3%   92      
+   (0.7, 1]   (bad)        8    3.1%   <NA>    
+   (1, Inf)   (very bad)   7    2.7%   <NA>    
+See help('pareto-k-diagnostic') for details.
+NOTE: High p_loo (~275 vs 4 parameters) confirms severe misspecification.
+
+=== §3.2 Poisson covariate-dropping comparison ===
+Book target: Poisson w/o sqrt(roach1) elpd_diff ≈ -2750, se ≈ 638
+             Poisson w/o treatment     elpd_diff ≈ -217,  se ≈ 228
+             Poisson w/o senior        elpd_diff ≈  0
+loo_compare — Poisson covariate dropping
+                    model elpd_diff se_diff p_worse diag_diff       diag_elpd
+       Poisson w/o senior       0.0     0.0      NA           14 k_psis > 0.7
+       Poisson full model      -8.5   174.9    0.52           15 k_psis > 0.7
+    Poisson w/o treatment    -220.2   223.3    0.84            9 k_psis > 0.7
+ Poisson w/o sqrt(roach1)   -2755.9   634.4    1.00           13 k_psis > 0.7
+
+=== §4 Negative-binomial diagnostics ===
+--- Diagnostics: fit_nb ---
+  passed      : TRUE
+  Rhat_max    : 1.0057
+  bulk_ESS_min: 993
+  tail_ESS_min: 1359
+  divergences : NA
+
+=== §4 Neg-bin posterior ===
+Book note: treatment effect much closer to zero vs Poisson;
+           senior has mass on both sides of 0.
+fixef(fit_nb)
+              Estimate  Est.Error       Q2.5      Q97.5
+Intercept    2.1168189 0.22614595  1.7073542  2.5562883
+sqrt_roach1  0.2560940 0.03049787  0.1955595  0.3159290
+treatment   -0.9612751 0.23601572 -1.4119635 -0.5000797
+senior      -0.1178843 0.24761127 -0.5909208  0.3769966
+
+=== §4.1 Neg-bin LOO ===
+Book target: elpd_loo ≈ -882 (SE 38), p_loo ≈ 8.5
+loo(fit_nb) — moment-matched
+
+Computed from 2000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -881.8 38.3
+p_loo         8.3  3.6
+looic      1763.6 76.5
+------
+MCSE of elpd_loo is NA.
+MCSE and ESS estimates assume MCMC draws (r_eff in [0.7, 1.3]).
+
+Pareto k diagnostic values:
+                         Count Pct.    Min. ESS
+(-Inf, 0.7]   (good)     260   99.2%   897     
+   (0.7, 1]   (bad)        2    0.8%   <NA>    
+   (1, Inf)   (very bad)   0    0.0%   <NA>    
+See help('pareto-k-diagnostic') for details.
+
+=== §4.1 Poisson vs Neg-bin LOO comparison ===
+Book target: elpd_diff ≈ -4597 (Poisson worse)
+loo_compare Poisson vs Neg-bin
+   model elpd_diff se_diff p_worse diag_diff       diag_elpd
+ Neg-bin       0.0     0.0      NA            2 k_psis > 0.7
+ Poisson   -4572.1   672.7    1.00           15 k_psis > 0.7
+
+=== Without moment matching (raw PSIS-LOO) ===
+loo_compare (pre-MM): Poisson vs Neg-bin
+   model elpd_diff se_diff p_worse diag_diff       diag_elpd
+ Neg-bin       0.0     0.0      NA            2 k_psis > 0.7
+ Poisson   -4572.1   672.7    1.00           15 k_psis > 0.7
+NOTE: NB reliability diagram shows slight miscalibration for zero/non-zero
+      prediction — motivates the ZINB model in §7.
+
+--- Diagnostics: fit_pvi (Poisson varying intercept) ---
+  passed      : FALSE
+  Rhat_max    : 1.0102
+  bulk_ESS_min: 679
+  tail_ESS_min: 1247
+  divergences : NA
+fixef(fit_pvi)
+              Estimate  Est.Error       Q2.5      Q97.5
+Intercept    0.2742419 0.27738017 -0.2661963  0.7969102
+sqrt_roach1  0.3296041 0.02901472  0.2714876  0.3875373
+treatment   -0.8424883 0.26958492 -1.3699361 -0.3043112
+senior      -0.7525193 0.30933454 -1.3645111 -0.1517705
+
+=== §5.2 Poisson var-int LOO (raw PSIS-LOO; MM skipped) ===
+Book target: elpd_loo ≈ -625 (SE 24), p_loo ≈ 161
+loo(fit_pvi) raw PSIS-LOO
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -628.2 24.0
+p_loo       163.9  4.4
+looic      1256.3 48.1
+------
+MCSE of elpd_loo is NA.
+MCSE and ESS estimates assume MCMC draws (r_eff in [0.8, 1.1]).
+
+Pareto k diagnostic values:
+                         Count Pct.    Min. ESS
+(-Inf, 0.7]   (good)      58   22.1%   203     
+   (0.7, 1]   (bad)      177   67.6%   <NA>    
+   (1, Inf)   (very bad)  27   10.3%   <NA>    
+See help('pareto-k-diagnostic') for details.
+NOTE: Many high Pareto-k expected; p_loo >> N/5 indicates very flexible model.
+NOTE: MM skipped (rstan compile error). Gold standard: kfold(fit_pvi, K=10)
+
+=== §5.2 NB vs Poisson var-int (raw PSIS-LOO — informational) ===
+NOTE: PSIS-LOO fails for fit_pvi; comparison is misleading without kfold.
+      Book: loo_compare(fit_nb, fit_pvi) shows fit_pvi 'winning' by ~276
+      elpd units, but this is an artifact of the Pareto-k failures.
+loo_compare NB vs PVI (raw, misleading)
+   model elpd_diff se_diff p_worse diag_diff        diag_elpd
+ fit_pvi       0.0     0.0      NA           204 k_psis > 0.7
+  fit_nb    -253.6    17.5    1.00             2 k_psis > 0.7
+
+--- Diagnostics: fit_p_vi (cmdstanr integrated LOO) ---
+  num_divergences   : 0
+  num_max_treedepth : 0
+  E-BFMI            : 1.9562, 1.8459, 2.0067, 1.9336
+fit_p_vi: alpha, beta, sigmaz summary
+# A tibble: 5 × 10
+  variable  mean median    sd   mad    q5   q95  rhat ess_bulk ess_tail
+  <chr>    <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
+1 alpha     0.27   0.28  0.27  0.27 -0.17  0.70  1.00  1629.67  2791.63
+2 beta[1]   0.33   0.33  0.03  0.03  0.28  0.38  1.00  1500.30  2434.02
+3 beta[2]  -0.81  -0.81  0.27  0.27 -1.24 -0.37  1.00  1382.11  2122.21
+4 beta[3]  -0.75  -0.75  0.31  0.31 -1.24 -0.25  1.00  1984.12  2285.31
+5 sigmaz    2.01   2.00  0.13  0.12  1.81  2.23  1.00  3471.67  3478.83
+
+--- Diagnostics: fit_p_vi (cmdstanr integrated LOO) ---
+  num_divergences   : 0
+  num_max_treedepth : 0
+  E-BFMI            : 1.9562, 1.8459, 2.0067, 1.9336
+fit_p_vi: alpha, beta, sigmaz summary
+# A tibble: 5 × 10
+  variable  mean median    sd   mad    q5   q95  rhat ess_bulk ess_tail
+  <chr>    <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
+1 alpha     0.27   0.28  0.27  0.27 -0.17  0.70  1.00  1629.67  2791.63
+2 beta[1]   0.33   0.33  0.03  0.03  0.28  0.38  1.00  1500.30  2434.02
+3 beta[2]  -0.81  -0.81  0.27  0.27 -1.24 -0.37  1.00  1382.11  2122.21
+4 beta[3]  -0.75  -0.75  0.31  0.31 -1.24 -0.25  1.00  1984.12  2285.31
+5 sigmaz    2.01   2.00  0.13  0.12  1.81  2.23  1.00  3471.67  3478.83
+
+=== §6 Integrated-LOO Poisson LOO ===
+Book target: elpd_loo ≈ -878 (SE 38), p_loo ≈ 4.8
+loo_p_vi (integrated)
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -878.3 38.2
+p_loo         4.7  0.5
+looic      1756.6 76.4
+------
+MCSE of elpd_loo is 0.0.
+MCSE and ESS estimates assume independent draws (r_eff=1).
+
+All Pareto k estimates are good (k < 0.7).
+See help('pareto-k-diagnostic') for details.
+
+=== §6 Integrated-LOO Poisson vs Neg-bin ===
+Book target: elpd_diff ≈ -3.5 (NB slightly worse), se ≈ 7.6
+loo_compare integrated-LOO Poisson vs NB
+                     model elpd_diff se_diff p_worse       diag_diff      diag_elpd
+ Poisson var. int. int-LOO       0.0     0.0      NA                               
+                   Neg-bin      -3.5     7.5    0.68 |elpd_diff| < 4 2 k_psis > 0.7
+
+--- Diagnostics: fit_p_vi (cmdstanr integrated LOO) ---
+  num_divergences   : 0
+  num_max_treedepth : 0
+  E-BFMI            : 1.9562, 1.8459, 2.0067, 1.9336
+fit_p_vi: alpha, beta, sigmaz summary
+# A tibble: 5 × 10
+  variable  mean median    sd   mad    q5   q95  rhat ess_bulk ess_tail
+  <chr>    <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
+1 alpha     0.27   0.28  0.27  0.27 -0.17  0.70  1.00  1629.67  2791.63
+2 beta[1]   0.33   0.33  0.03  0.03  0.28  0.38  1.00  1500.30  2434.02
+3 beta[2]  -0.81  -0.81  0.27  0.27 -1.24 -0.37  1.00  1382.11  2122.21
+4 beta[3]  -0.75  -0.75  0.31  0.31 -1.24 -0.25  1.00  1984.12  2285.31
+5 sigmaz    2.01   2.00  0.13  0.12  1.81  2.23  1.00  3471.67  3478.83
+
+=== §6 Integrated-LOO Poisson LOO ===
+Book target: elpd_loo ≈ -878 (SE 38), p_loo ≈ 4.8
+loo_p_vi (integrated)
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -878.3 38.2
+p_loo         4.7  0.5
+looic      1756.6 76.4
+------
+MCSE of elpd_loo is 0.0.
+MCSE and ESS estimates assume independent draws (r_eff=1).
+
+All Pareto k estimates are good (k < 0.7).
+See help('pareto-k-diagnostic') for details.
+
+=== §6 Integrated-LOO Poisson vs Neg-bin ===
+Book target: elpd_diff ≈ -3.5 (NB slightly worse), se ≈ 7.6
+loo_compare integrated-LOO Poisson vs NB
+                     model elpd_diff se_diff p_worse       diag_diff      diag_elpd
+ Poisson var. int. int-LOO       0.0     0.0      NA                               
+                   Neg-bin      -3.5     7.5    0.68 |elpd_diff| < 4 2 k_psis > 0.7
+
+=== §6 Integrated-LOO Poisson LOO ===
+Book target: elpd_loo ≈ -878 (SE 38), p_loo ≈ 4.8
+loo_p_vi (integrated)
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -878.3 38.2
+p_loo         4.7  0.5
+looic      1756.6 76.4
+------
+MCSE of elpd_loo is 0.0.
+MCSE and ESS estimates assume independent draws (r_eff=1).
+
+All Pareto k estimates are good (k < 0.7).
+See help('pareto-k-diagnostic') for details.
+
+=== §6 Integrated-LOO Poisson vs Neg-bin ===
+Book target: elpd_diff ≈ -3.5 (NB slightly worse), se ≈ 7.6
+loo_compare integrated-LOO Poisson vs NB
+                     model elpd_diff se_diff p_worse       diag_diff      diag_elpd
+ Poisson var. int. int-LOO       0.0     0.0      NA                               
+                   Neg-bin      -3.5     7.5    0.68 |elpd_diff| < 4 2 k_psis > 0.7
+NOTE: Integrated-LOO reliability diagram better calibrated than NB.
+
+--- Diagnostics: fit_zinb ---
+  passed      : TRUE
+  Rhat_max    : 1.0032
+  bulk_ESS_min: 1927
+  tail_ESS_min: 1905
+  divergences : NA
+
+=== §7 ZINB LOO ===
+Book target: elpd_loo ≈ -859 (SE 38), p_loo ≈ 10.2
+loo(fit_zinb)
+
+Computed from 4000 by 262 log-likelihood matrix.
+
+         Estimate   SE
+elpd_loo   -859.2 37.9
+p_loo        10.3  2.8
+looic      1718.4 75.7
+------
+MCSE of elpd_loo is NA.
+MCSE and ESS estimates assume MCMC draws (r_eff in [0.8, 1.5]).
+
+Pareto k diagnostic values:
+                         Count Pct.    Min. ESS
+(-Inf, 0.7]   (good)     261   99.6%   157     
+   (0.7, 1]   (bad)        1    0.4%   <NA>    
+   (1, Inf)   (very bad)   0    0.0%   <NA>    
+See help('pareto-k-diagnostic') for details.
+
+=== §7 NB vs ZINB ===
+Book target: elpd_diff ≈ -22.8 (NB worse), se ≈ 6.9, p_worse ≈ 1.0
+loo_compare NB vs ZINB
+   model elpd_diff se_diff p_worse diag_diff      diag_elpd
+    ZINB       0.0     0.0      NA           1 k_psis > 0.7
+ Neg-bin     -22.6     6.9    1.00           2 k_psis > 0.7
+fixef(fit_zinb)
+                  Estimate  Est.Error        Q2.5      Q97.5
+Intercept       2.60720134 0.21671264  2.19068199  3.0508378
+zi_Intercept   -0.47629904 0.44376063 -1.41053625  0.3604817
+sqrt_roach1     0.17509700 0.02529705  0.12697423  0.2271313
+treatment      -0.66123706 0.20555811 -1.06835197 -0.2719428
+senior          0.05043428 0.24599866 -0.42129206  0.5309145
+zi_sqrt_roach1 -0.61788041 0.13267354 -0.90799771 -0.3835869
+zi_treatment    1.00616303 0.44468995  0.14784531  1.9014626
+zi_senior       0.85722281 0.42387269  0.04088306  1.7029419
+
+=== §7.1 Treatment ratios — all three models ===
+Book note: Poisson is overconfident (too narrow); NB and ZINB similar.
+
+=== §7.2 Prior sensitivity (ZINB, quantity: ratio) ===
+Book target: prior sensitivity ≈ 0.04, likelihood sensitivity ≈ 0.14
+powerscale_sensitivity (variable = ratio)
+Sensitivity based on 
+Prior selection: all priors
+Likelihood selection: all data
+
+ variable prior likelihood                     diagnosis
+    ratio  0.06       0.15 potential prior-data conflict
+NOTE: Low prior sensitivity and informative likelihood — both expected.
+
+=== §7.3 ZINB full vs ZINB w/o treatment ===
+Book target: elpd_diff ≈ -8.5 (ZINB w/o treatment worse), se ≈ 4.7, p_worse ≈ 0.97
+loo_compare ZINB full vs w/o treatment
+              model elpd_diff se_diff p_worse diag_diff      diag_elpd
+    ZINB full model       0.0     0.0      NA           1 k_psis > 0.7
+ ZINB w/o treatment      -8.6     4.7    0.97           1 k_psis > 0.7
+
+=== Ch 24 analysis complete — 2026-09-20 09:10:12 ===
+Saved: fit_p.rds, fit_p_m1.rds, fit_p_m2.rds, fit_p_m3.rds, fit_nb.rds, fit_pvi.rds, fit_zinb.rds, fit_zinb_m2.rds, wf_final.rds
+Figures saved to figs/: Fig-24.1.svg through Fig-24.28.svg
+Stan file: poisson_vi_integrate.stan

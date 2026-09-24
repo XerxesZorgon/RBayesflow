@@ -1,20 +1,52 @@
-wf_context.json
-*.rds
-!examples/**/*.rds
+# === RBayesflow .gitignore ===
+
+# Rendered / generated outputs
 templates/*.html
 templates/*_files/
 Rplots.pdf
-
-data/*/
-!data/.gitkeep
-!data/movies_ch16/
-data/movies_ch16/*.rds
-
-.codex/
-.cursor/
-.mcp.json
-.vscode/
-.Rhistory
 error.txt
 output.txt
-!data/ch29_no_vehicles/
+
+# R session state
+.Rhistory
+
+# IDE folders (apply everywhere, including inside data/)
+.codex/
+**/.codex/
+.cursor/
+**/.cursor/
+.mcp.json
+**/.mcp.json
+.vscode/
+**/.vscode/
+
+# CmdStan compiled binaries
+*.exe
+
+# Stan sampler CSV output
+**/stan_output/
+
+# Fitted model objects (large binary files)
+*.rds
+*.RDS
+
+# wf_context.json and wf_final.rds (re-generated each session)
+wf_context.json
+wf_final.rds
+
+# === data/ folder rules ===
+# Ignore all chapter folders by default, then opt in by wildcard.
+data/*/
+!data/.gitkeep
+
+# Track every chapter folder (ch*).
+# Artifact ignores above (*.exe, stan_output/, *.rds, wf_context.json)
+# suppress the generated files inside each chapter automatically.
+!data/ch*/
+
+# Within each chapter, ignore saved_fit/ (large cmdstanr .RDS objects)
+data/ch*/saved_fit/
+
+# === examples/ rules ===
+# Keep example .rds fixtures (used by test suite).
+!examples/**/*.rds

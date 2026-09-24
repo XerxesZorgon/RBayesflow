@@ -1,0 +1,111 @@
+=== Ch 28 results log — 2026-09-23 12:27:51 ===
+nmat = 407
+npor = 657
+npor_complete (complete cases) = 382
+NOTE: brms will fit Portuguese model on complete cases only (382 rows)
+sd(Gmat) = 3.3 (book: 3.3)
+sd(Gpor) = 2.66 (book: ~2.7)
+Fig-28.1.svg saved
+fitm_u loaded from cache
+
+=== fitm_u: flat prior R2 ===
+Book target bayes_R2: Estimate ≈ 0.30
+Book target loo_R2:   Estimate ≈ 0.18
+bayes_R2_paper(fitm_u)
+   Estimate Est.Error Q2.5 Q97.5
+R2      0.3      0.03 0.24  0.37
+loo_R2(fitm_u)
+   Estimate Est.Error Q2.5 Q97.5
+R2     0.18      0.04 0.11  0.26
+Fig-28.2.svg saved
+fitm_n1 loaded from cache
+--- Diagnostics: fitm_n1 ---
+  Rhat_max    : 1.001
+  neff_min    : 0.4226
+scale_b (scaled normal sd) = 0.3539  (note: sd(studentstd_Gmat$Gmat) = 1.0 after standardisation)
+fitm_n2 loaded from cache
+--- Diagnostics: fitm_n2 ---
+  Rhat_max    : 1.0005
+  neff_min    : 0.4082
+horseshoe scale_global = 0.0149  scale_slab = 0.7368
+fitm_hs loaded from cache
+--- Diagnostics: fitm_hs ---
+  Rhat_max    : 1.0017
+  neff_min    : 0.2617
+fitm loaded from cache
+--- Diagnostics: fitm (R2D2) ---
+  Rhat_max    : 1.0013
+  neff_min    : 0.2496
+fitm_n1p loaded from cache
+Diagnostics skipped: prior-only fit (fitm_n1p)
+fitm_n1pt loaded from cache
+Diagnostics skipped: prior-only fit (fitm_n1pt)
+fitm_n2p loaded from cache
+Diagnostics skipped: prior-only fit (fitm_n2p)
+fitm_hsp loaded from cache
+Diagnostics skipped: prior-only fit (fitm_hsp)
+fitmp loaded from cache
+Diagnostics skipped: prior-only fit (fitmp)
+Fig-28.3.svg saved
+Fig-28.4.svg saved
+Fig-28.5.svg saved
+Fig-28.6.svg saved
+
+=== LOO comparison: four priors ===
+Book target: R2D2 best; Wide normal elpd_diff ≈ -4.1 (se 2.6)
+loo_compare: four priors
+         model elpd_diff se_diff p_worse       diag_diff diag_elpd
+          R2D2       0.0     0.0      NA                          
+ Scaled normal      -0.5     1.6    0.62 |elpd_diff| < 4          
+     Horseshoe      -0.7     0.5    0.94 |elpd_diff| < 4          
+   Wide normal      -3.8     2.7    0.92 |elpd_diff| < 4          
+fitm_2000 loaded from cache
+--- Diagnostics: fitm_2000 ---
+  Rhat_max    : 1.0054
+  neff_min    : 0.2641
+Fig-28.7.svg saved
+Fig-28.8.svg saved
+Fig-28.9.svg saved
+Fig-28.10.svg saved
+vselm_fast loaded from cache
+Fig-28.11.svg saved
+NOTE: fast search (validate_search=FALSE) may overfit — use vselm for reliable size
+vselm loaded from cache
+suggest_size(vselm) = 4  (book target: 4)
+Top 4 math predictors: failures, schoolsup, Medu, goout
+Fig-28.12.svg saved
+Fig-28.13.svg saved
+Fig-28.14.svg saved
+fitp loaded from cache
+--- Diagnostics: fitp ---
+  Rhat_max    : 1.0049
+  neff_min    : 0.2486
+  nobs(fitp)  : 382  (book reports 657 rows; complete cases only)
+# INVESTIGATE: fitp fitted on 382 rows, not 657. Portuguese data has NAs — brms drops incomplete cases.
+
+=== fitp: Portuguese R2D2 model ===
+Book target bayes_R2: Estimate ≈ 0.33
+Book target loo_R2:   Estimate ≈ 0.28
+bayes_R2_paper(fitp)
+   Estimate Est.Error Q2.5 Q97.5
+R2     0.32      0.04 0.25   0.4
+loo_R2(fitp)
+   Estimate Est.Error Q2.5 Q97.5
+R2     0.28      0.04 0.21  0.35
+Fig-28.15.svg saved
+vselp_fast loaded from cache
+Fig-28.16.svg saved
+vselp loaded from cache
+suggest_size(vselp) = 8  (book text says 7; code output says 8)
+Top 8 Portuguese predictors: failures, Dalc, studytime, Medu, schoolsup, higher, health, address
+Fig-28.17.svg saved
+Fig-28.18.svg saved
+Fig-28.19.svg saved
+
+=== Ch 28 analysis complete — 2026-09-23 12:32:10 ===
+Saved: fitm_u.rds, fitm_n1.rds, fitm_n1p.rds, fitm_n1pt.rds,
+       fitm_n2.rds, fitm_n2p.rds, fitm_hs.rds, fitm_hsp.rds,
+       fitm.rds, fitmp.rds, fitm_2000.rds, fitp.rds,
+       vselm_fast.rds, vselm.rds, vselp_fast.rds, vselp.rds,
+       wf_final.rds
+Figures saved to figs/: Fig-28.1.svg through Fig-28.19.svg

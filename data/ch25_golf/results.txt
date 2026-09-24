@@ -1,0 +1,38 @@
+=== Ch 25 results log — 2026-09-21 12:41:27 ===
+
+=== § 1  Data acquisition ===
+Old data: J = 19 bins, distances 2–20 ft
+New data: J = 31 bins, distances 0.28–75.19 ft
+r (ball) = 0.07 ft  |  R (hole) = 0.1771 ft
+
+=== § 2  Fig 25.1: Raw data ===
+
+=== § 3  Model 1: Logistic regression ===
+
+=== M1: Logistic regression ===
+Book targets: a = 2.23 ± 0.06 | b = -0.26 ± 0.01
+Fitted:       a = 2.23 ± 0.06 | b = -0.26 ± 0.01
+--- Diagnostics: fit_1 ---
+  Rhat_max     : 1.0066
+  bulk_ESS_min : 1140
+  tail_ESS_min : 1359
+  divergences  : 0
+
+=== § 4  Geometry sketches ===
+
+=== § 5  Model 2: Geometry-based angle model ===
+
+=== M2: Angle-only geometry model ===
+Book target: sigma_degrees = 1.53 ± 0.02
+Fitted:      sigma_degrees = 1.53 ± 0.02
+--- Diagnostics: fit_2 ---
+  Rhat_max     : 1.0049
+  bulk_ESS_min : 1581
+  tail_ESS_min : 1605
+  divergences  : 0
+
+=== § 6  New data vs old model ===
+
+=== § 7  Fig 25.8: angle + distance sketch ===
+
+=== § 8  Model 3: Angle + distance binomial ===
