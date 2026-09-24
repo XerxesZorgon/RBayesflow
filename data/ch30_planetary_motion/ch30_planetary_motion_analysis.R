@@ -69,6 +69,7 @@ library(plyr)
 library(tidyr)
 library(boot)
 library(latex2exp)
+library(ggplot2)
 library(cmdstanr)
 
 options(brms.backend = "cmdstanr", mc.cores = 4)
@@ -390,6 +391,7 @@ pth1p <- mod1$pathfinder(
   single_path_draws  = 25,
   draws              = 1000,
   max_lbfgs_iters    = 100,
+  psis_resample      = FALSE,
   refresh            = 0
 )
 # Pathfinder may report some path failures; this is expected and documented
@@ -533,6 +535,7 @@ pth2 <- mod2$pathfinder(
   single_path_draws = 25,
   draws             = 1000,
   max_lbfgs_iters   = 100,
+  psis_resample     = FALSE,
   refresh           = 0
 )
 # Most of the 40 paths will fail; this is expected (book: "only 3s").
@@ -625,4 +628,6 @@ log_result("Saved: saved_fit/fit1.RDS (book, loaded), saved_fit/fit1p.RDS, saved
 log_result("Figures saved to figs/: ",
            paste(paste0("Fig-30.", c(1:10), ".svg"), collapse = ", "))
 close(results_con)
+
+
 
