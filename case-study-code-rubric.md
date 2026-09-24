@@ -307,6 +307,30 @@ wf$fit_hash <- digest::digest(
    of a borderline chain. Note the elevated iteration count in the script
    header.
 
+7. **Pathfinder initialization on multimodal posteriors:** when using
+   `mod$pathfinder()` to initialize MCMC for a chapter with a multimodal or
+   highly concentrated posterior (ODE-based models, mixture models, models with
+   near-degenerate likelihoods), always pass `psis_resample = FALSE`:
+
+   ```r
+   pth <- mod$pathfinder(
+     data              = stan_data,
+     num_paths         = 40,
+     single_path_draws = 25,
+     draws             = 1000,
+     max_lbfgs_iters   = 100,
+     psis_resample     = FALSE,   # required for multimodal posteriors
+     refresh           = 0
+   )
+   ```
+
+   Without `psis_resample = FALSE`, PSIS resampling can collapse the 1000
+   raw Pathfinder draws to only a handful of distinct values — not enough to
+   initialize multiple chains — and `$sample(init = pth)` will error with
+   "Not enough distinct draws". Using `psis_resample = FALSE` passes all raw
+   draws through as candidate initial points. It is safe to use on
+   non-multimodal posteriors too.
+
 ---
 
 ## 7. LOO-CV
@@ -360,8 +384,27 @@ if (length(wf$diagnostics$failed_criteria) > 0)
 
 ### Stan-native diagnostic pattern (cmdstanr fits)
 
-When `run_diagnostics()` is not available, use `fit$diagnostic_summary()`
-and log results in the same format:
+When `run_diagnostics()` is not available, use `diagnose_cmdstan()` (preferred)
+or `fit$diagnostic_summary()` and log results in the same format.
+
+**Critical: pass only sampled parameters to `diagnose_cmdstan()` and
+`fit$summary()`.** Never include generated quantities (`log_lik`, `y_rep`,
+`qx_pred`, `p[n]`, etc.) in the `params` argument. Generated quantities have
+no convergence meaning — their Rhat and ESS look artificially healthy because
+they are deterministic functions of the sampled draws, not independent chains.
+For a non-centered model, diagnose the latent variables (`z_item`, `z_subject`)
+not the transformed parameters (`a_item`, `a_subject`); the sampler's
+difficulty lives in the latent space.
+
+```r
+# CORRECT: sampled parameters only
+wf <- diagnose_cmdstan(fit_mN, wf, params = c("alpha", "beta", "sigma"))
+
+# WRONG: includes generated quantities
+wf <- diagnose_cmdstan(fit_mN, wf)   # default includes everything — avoid
+```
+
+For `diagnose_cmdstan()` with `fit$diagnostic_summary()` fallback:
 
 ```r
 log_result("--- Diagnostics: fit_mN (cmdstanr) ---")
@@ -369,7 +412,7 @@ diag <- fit_mN$diagnostic_summary()
 log_result("  num_divergences   : ", sum(diag$num_divergent))
 log_result("  num_max_treedepth : ", sum(diag$num_max_treedepth))
 log_result("  E-BFMI            : ", paste(round(diag$ebfmi, 4), collapse = ", "))
-smry <- fit_mN$summary(c("param1", "param2"))   # list key parameters
+smry <- fit_mN$summary(c("param1", "param2"))   # sampled parameters only
 capture_result(smry, label = "fit_mN: parameter summary")
 ```
 
@@ -570,6 +613,22 @@ default break algorithm may produce only one or two ticks.
 
 For base-R plots with narrow-range axes, set `xaxs = "r"` or pass explicit
 `xlim` and `xaxt = "n"` + `axis(1, at = ...)` to control tick placement.
+
+### 11.6 Render before writing figure interpretations
+
+R's SVG device writes path-encoded glyph outlines, not text nodes. Reading SVG
+source from XML produces unreadable encoded paths — it is not a substitute for
+rendering the file. Before writing any figure description in an article or
+in `results.txt`, either:
+
+- Copy the SVG to Claude's computer with `copy_file_user_to_claude` and call
+  `view` on the resulting path, **or**
+- Open the file in a browser or the RStudio Viewer pane and describe what is
+  actually visible.
+
+Never write a figure interpretation from the SVG XML source or from memory of
+what the plot type "typically shows". The interpretation must match what the
+rendered figure actually displays.
 
 ---
 
