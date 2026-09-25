@@ -1,3 +1,19 @@
+---
+{
+  "id": "file_oekmjj3h",
+  "filetype": "document",
+  "filename": "README",
+  "created_at": "2026-09-24T21:51:09.939Z",
+  "updated_at": "2026-09-25T11:22:54.472Z",
+  "meta": {
+    "location": "/",
+    "tags": [],
+    "categories": [],
+    "description": "",
+    "source": "markdown"
+  }
+}
+---
 # RBayesflow
 
 A structured RStudio workflow for the iterative Bayesian analysis process described in Gelman et al. (2020). RBayesflow sequences the existing R/Stan ecosystem (brms, bayesplot, posterior, tidybayes, loo) into a reproducible, mode-aware pipeline, with Posit Assistant reading live session state to interpret diagnostics and guide the next step.
@@ -41,7 +57,7 @@ Set once per project via `init_workflow(mode = ...)`:
 ### 1. Clone or download
 
 ```bash
-git clone https://github.com/<your-username>/RBayesflow.git
+git clone https://github.com/XerxesZorgon/RBayesflow.git
 ```
 
 ### 2. Install dependencies
@@ -146,20 +162,22 @@ Your choice is logged to the audit trail. If you choose an alternative, `exit_wo
 
 ## Reference
 
-Gelman, A., Vehtari, A., Simpson, D., Margossian, C. C., Carpenter, B., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., & Modrák, M. (2020). *Bayesian Workflow.* arXiv:2011.01808.  
-<https://users.aalto.fi/~ave/Bayesian-Workflow.pdf>
+Gelman, A., Vehtari, A., Simpson, D., Margossian, C. C., Carpenter, B., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., & Modrák, M. (2020). *Bayesian Workflow.* arXiv:2011.01808.\
+<https://users.aalto.fi/\~ave/Bayesian-Workflow.pdf>
 
 ---
 
 ## Project Documentation
 
 | Document | Contents |
-|---|---|
-| `docs/SDD.md` | What RBayesflow is and why it exists |
-| `docs/DESIGN.md` | How it works: schemas, contracts, logic |
-| `docs/PLAN.md` | Phased implementation plan |
-| `docs/TEST_PLAN.md` | Acceptance tests and unit tests |
-| `docs/adr/` | Architecture Decision Records (ADR-001 through ADR-007) |
+| :--- | :--- |
+| `docs/user-guide/00-overview.md` | What RBayesflow is, how it fits into the Bayesian workflow, and how the guide is organized |
+| `docs/user-guide/01-installation.md` | Installing R, RTools, cmdstanr, and all pinned dependencies via `rbf_install()` |
+| `docs/user-guide/02-posit-assistant-setup.md` | Configuring Posit Assistant in RStudio and Positron, including OpenRouter API key setup and model selection |
+| `docs/user-guide/03-starting-an-analysis.md` | Creating a new analysis with `rbf_new()`, setting the workflow mode, and using `guide()` to orient yourself at any point |
+| `docs/user-guide/04-workflow-phases.md` | What to run, what to expect, and when to move on for each of the seven workflow phases |
+| `docs/user-guide/05-plotting-reference.md` | Interpretation guide for every plot type produced across the seven phases, distinguishing the Phase 1 role of esquisse from the diagnostic role of bayesplot and tidybayes |
+| `docs/user-guide/Case Studies.md` | Worked case studies from Gelman et al. (2020), Chapters 16–30, with annotated R scripts, Stan models, and figures |
 | `CHANGELOG.md` | Version history |
 
 ---
